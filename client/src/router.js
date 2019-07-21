@@ -6,6 +6,7 @@ import Problems from '@/views/Problems.vue'
 import Submissions from '@/views/Submissions.vue'
 import Login from '@/views/Login.vue'
 import Admin from '@/views/Admin.vue'
+import Problem from '@/views/Problem.vue'
 
 Vue.use(Router)
 
@@ -30,6 +31,11 @@ export default new Router({
       path: '/submissions',
       name: 'submissions',
       component: Submissions
+    },
+    {
+      path: '/problem/:id',
+      name: 'problem',
+      component: Problem
     },
     {
       path: '/admin',

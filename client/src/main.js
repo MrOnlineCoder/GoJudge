@@ -57,6 +57,36 @@ Vue.directive('permission', {
   }
 });
 
+Vue.filter('formatTimelimit', (val) => {
+  if (val < 1000) {
+    return `${val} ms.`;
+  } else {
+    let secs = Math.floor(val / 1000);
+    let left = val % 1000;
+
+    if (left == 0) {
+      return `${secs} s.`;
+    } else {
+      return `${secs} s. ${left} ms.`;
+    }
+  }
+});
+
+Vue.filter('formatMemlimit', (val) => {
+  if (val < 1024) {
+    return `${val} KB`;
+  } else {
+    let megs = Math.floor(val / 1024);
+    let left = val % 1024;
+
+    if (left == 0) {
+      return `${megs} MB.`;
+    } else {
+      return `${megs} MB ${left} KB.`; //ugly case
+    }
+  }
+});
+
 function createApp() {
   new Vue({
     router,
