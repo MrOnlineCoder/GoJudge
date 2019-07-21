@@ -69,3 +69,44 @@ func GetUser(id int) (User, error) {
 
  return user, nil
 }
+
+func GetAllUsers() ([]User, error) {
+	const getAllSql = `
+		SELECT "id", "username", "fullname", "access" FROM "users"
+	`;
+
+	list := []User{}
+
+	rows, err := Maindb.Query(getAllSql);
+
+	if err != nil {
+		return list, errors.New("Database query failed.");
+	}
+
+	for rows.Next() {
+    u := User{}
+    err := rows.Scan(&u.Id, &u.Username, &u.Fullname, &u.Access)
+    if err != nil {
+      continue
+    }
+    list = append(list, u)
+  }
+
+	rows.Close()
+
+	return list, nil
+}
+
+func DeleteUser(user_id int) bool {
+	const deleteSql = `
+		DELETE FROM "users" WHERE "id" = $1
+	`;
+
+	_, err := Maindb.Exec(deleteSql, user_id);
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}

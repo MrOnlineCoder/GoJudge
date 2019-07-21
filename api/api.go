@@ -1,37 +1,12 @@
 package api
 
 import (
-	"net/http"
 	"github.com/gorilla/mux"
-	"encoding/json"
+	"gojudge/auth"
+	"gojudge/admin"
 )
 
 var router *mux.Router;
-
-func SendError(w http.ResponseWriter, msg string) {
-	w.Header().Add("Content-Type", "application/json")
-
-	respMap := map[string] interface{} {
-		"success": false, 
-		"message": msg,
-	}
-
-	json.NewEncoder(w).Encode(respMap);
-}
-
-func SendSuccess(w http.ResponseWriter, data map[string]interface{}) {
-	w.Header().Add("Content-Type", "application/json")
-
-	respMap := map[string] interface{} {
-		"success": true,
-	}
-
-	for k, v := range data {
-    respMap[k] = v
-  }
-
-	json.NewEncoder(w).Encode(respMap);
-}
 
 func Create() *mux.Router {
 	router = mux.NewRouter();
@@ -41,7 +16,11 @@ func Create() *mux.Router {
 
 	// /api/auth
 	authRouter := apiRouter.PathPrefix("/auth").Subrouter();
-	InitAuthAPI(authRouter);
+	auth.InitAuthAPI(authRouter);
+
+	// /api/admin
+	adminRouter := apiRouter.PathPrefix("/admin").Subrouter();
+	admin.InitAdminAPI(adminRouter);
 
 	return router;
 }

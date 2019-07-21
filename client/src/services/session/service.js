@@ -19,16 +19,18 @@ function logout() {
 	if (subscribeCb) subscribeCb();
 }
 
-function whoami() {
+function whoami(cb) {
 	axios.get('/api/auth/me').then(response => {
 		if (!response.data.success) {
 			loggedIn = false;
 			console.error('[Session] whoami failed.');
+			if(cb) cb();
 			return;
 		}
 
 		if (!response.data.user) {
 			loggedIn = false;
+			if(cb) cb();
 			return;
 		}
 
@@ -37,9 +39,12 @@ function whoami() {
 		loggedIn = true;
 
 		if (subscribeCb) subscribeCb();
+
+		if(cb) cb();
 	}).catch(error => {
 		loggedIn = false;
 		console.error('[Session] Init request failed');
+		if(cb) cb();
 	});
 }
 

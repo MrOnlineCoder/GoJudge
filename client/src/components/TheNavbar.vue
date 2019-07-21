@@ -23,6 +23,14 @@
           <font-awesome-icon icon="check-double"/>
           Submissions
         </b-nav-item>
+        <b-nav-item to="/jury" v-if="user.access >= 1">
+          <font-awesome-icon icon="gavel"/>
+          Jury
+        </b-nav-item>
+        <b-nav-item to="/admin" v-if="user.access >= 2">
+          <font-awesome-icon icon="tools"/>
+          Admin
+        </b-nav-item>
        </b-navbar-nav>
 
        <b-navbar-nav class="ml-auto">
@@ -67,11 +75,17 @@ export default {
   methods: {
     checkSession() {
       this.$session.subscribe(this.sessionChangeEvent);
-      this.$session.whoami();
+      this.sessionChangeEvent();
     },
     sessionChangeEvent() {
       this.loggedIn = this.$session.isLoggedIn();
-      if (this.loggedIn) this.user = this.$session.getCachedUser();
+      if (this.loggedIn) {
+        this.user = this.$session.getCachedUser();
+      } else {
+        this.user.access = -1;
+        this.user.username = "";
+        this.user.fullname = "";
+      }
     },
     logout() {
       axios.post('/api/auth/logout').then(response => {

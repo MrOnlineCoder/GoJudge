@@ -39,6 +39,7 @@ import App from './App.vue'
 import ErrorBlock from './components/ErrorBlock.vue'
 
 import $session from './services/session'
+import SessionService from './services/session/service.js'
 
 import router from './router'
 
@@ -46,7 +47,21 @@ Vue.use($session);
 
 Vue.component('ErrorBlock', ErrorBlock);
 
-new Vue({
-  router,
-  render: h => h(App)
-}).$mount('#app')
+Vue.directive('permission', {
+  bind(el, binding) {
+    let clvl = SessionService.getCachedUser().access || -1;
+
+    if (binding.value > clvl) {
+      el.style.display = 'none';
+    }
+  }
+});
+
+function createApp() {
+  new Vue({
+    router,
+    render: h => h(App)
+  }).$mount('#app')
+}
+
+SessionService.whoami(createApp);
