@@ -40,7 +40,8 @@
 			title="Create new user"
 			ref="createUserModal"
 			ok-title="Cancel"
-			ok-only>
+			ok-only
+			no-close-on-backdrop>
 			<ErrorBlock :err="error"/>
 			<b-form @submit.prevent="createUser">
 	      <b-form-group label="Username:">
@@ -96,7 +97,8 @@
 			title="Delete user"
 			ok-only
 			ok-title="Cancel"
-			ref="deleteUserModal">
+			ref="deleteUserModal"
+			no-close-on-backdrop>
 			<ErrorBlock :err="error"/>
 			<p>Are you sure you want to delete this user?</p>
 			<b>This action is irreversible.</b>
@@ -226,7 +228,7 @@ import axios from 'axios'
 	}
 </script>
 
-<style>
+<style scoped>
 .add-container {
 	text-align: center;
 }

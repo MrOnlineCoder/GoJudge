@@ -1,9 +1,112 @@
 package db
 
+import (
+	"errors"
+)
+
 type Problem struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
 	Timelimit int `json:"timelimit"`
 	Memlimit int `json:"memlimit"`
-	Text string
+	Text string `json:"text"`
+}
+
+func CreateProblem(p Problem) bool {
+	const createSql = `
+		INSERT INTO 'problems' (name, timelimit, memlimit, text) VALUES
+		(
+			$1,
+			$2,
+			$3,
+			$4
+		);
+	`;
+
+	_, err := Maindb.Exec(createSql, p.Name, p.Timelimit, p.Memlimit, p.Text);
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func GetAllProblems() ([]Problem, error) {
+	const getAllSql = `
+		SELECT * FROM "problems"
+	`;
+
+	list := []Problem{}
+
+	rows, err := Maindb.Query(getAllSql);
+
+	if err != nil {
+		return list, errors.New("Database query failed.");
+	}
+
+	for rows.Next() {
+    p := Problem{}
+    err := rows.Scan(&p.Id, &p.Name, &p.Timelimit, &p.Memlimit, &p.Text)
+    if err != nil {
+      continue
+    }
+    list = append(list, p)
+  }
+
+	rows.Close()
+
+	return list, nil
+}
+
+func GetProblem(id int) (Problem, error) {
+	const getProblemSql = `
+		SELECT * FROM "problems" WHERE "id" = $1
+	`;
+
+	row := Maindb.QueryRow(getProblemSql, id);
+
+	problem := Problem{};
+
+	err := row.Scan(&problem.Id, &problem.Name, &problem.Timelimit, &problem.Memlimit, &problem.Text);
+
+	if err != nil {
+		return problem, errors.New("Database query failed.");
+ }
+
+ return problem, nil
+}
+
+func UpdateProblem(p Problem) bool {
+	const updateSql = `
+		UPDATE "problems" SET
+		"name" = $1,
+		"timelimit" = $2,
+		"memlimit" = $3,
+		"text" = $4
+		WHERE
+		"id" = $5
+	`;
+
+	_, err := Maindb.Exec(updateSql, p.Name, p.Timelimit, p.Memlimit, p.Text, p.Id);
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+func DeleteProblem(problem_id int) bool {
+	const deleteSql = `
+		DELETE FROM "problems" WHERE "id" = $1
+	`;
+
+	_, err := Maindb.Exec(deleteSql, problem_id);
+
+	if err != nil {
+		return false
+	}
+
+	return true
 }

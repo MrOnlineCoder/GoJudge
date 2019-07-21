@@ -1,17 +1,19 @@
 package auth
 
 import (
-	"gojudge/db"
-	"gojudge/api/utils"
 	"net/http"
 	"time"
-	"github.com/gorilla/mux"
+	"log"
+  "errors"
 	"encoding/json"
 	"crypto/sha512"
   "encoding/hex"
+
   jwt "github.com/dgrijalva/jwt-go"
-  "log"
-  "errors"
+  "github.com/gorilla/mux"
+
+  "gojudge/db"
+	"gojudge/api/utils"
 )
 
 const (

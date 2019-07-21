@@ -13,7 +13,7 @@
 	    	<UsersEditor />
 	    </b-tab>
 	    <b-tab title="Problems">
-	    	
+	    	<ProblemsEditor />
 	    </b-tab>
   	</b-tabs>
 	</div>
@@ -21,6 +21,7 @@
 
 <script>
 import UsersEditor from '@/components/admin/UsersEditor.vue'
+import ProblemsEditor from '@/components/admin/ProblemsEditor.vue'
 
 	export default {
 		data() {
@@ -37,7 +38,8 @@ import UsersEditor from '@/components/admin/UsersEditor.vue'
 			}
 		},
 		components: {
-			UsersEditor
+			UsersEditor,
+			ProblemsEditor
 		}
 	}
 </script>
