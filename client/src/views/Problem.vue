@@ -12,6 +12,25 @@
 			<div v-html="renderedProblemText"></div>
 		</div>
 		<hr>
+		<div class="problem-examples" v-if="examples.length > 0">
+			<p>Examples:</p>
+			<b-card v-for="example in examples">
+				<b>Input</b>
+				<hr>
+				<code v-html="example.input.replace('\n', '<br>')"></code>
+				<br>
+				<br>
+				<b>Output</b>
+				<hr>
+				<code v-html="example.output.replace('\n', '<br>')"></code>
+			</b-card>
+		</div>
+		<router-link :to="'/submit/'+this.$route.params.idx">
+      <b-button variant="warning" class="submit-btn">
+          <font-awesome-icon icon="paper-plane"/>
+          Submit solution to this problem
+       </b-button>
+    </router-link> 
 	</div>
 </template>
 
@@ -28,6 +47,7 @@ export default {
 				memlimit: 0,
 				text: 'Loading...'
 			},
+			examples: [],
 			error: null
 		}
 	},
@@ -49,7 +69,7 @@ export default {
 				})
 				.catch(error => {
 					this.error = error;
-				})
+			});
 		}
 	},
 	computed: {

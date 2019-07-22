@@ -34,7 +34,7 @@
 	    		<font-awesome-icon icon="clock"/>
 	    		Time remaining: <b>{{ remainingTime }}</b>
 	    	</p>
-	    	<router-link to="/problems">
+	    	<router-link to="/problems" v-if="contestStarted">
 			    <b-button variant="primary">
 			    	<font-awesome-icon icon="code"/>
 			    	Go to problemset
@@ -65,6 +65,7 @@ export default {
   		busy: true,
   		timerID: -1,
   		remainingTime: '',
+  		contestStarted: false,
   	}
   },
   methods: {
@@ -95,7 +96,10 @@ export default {
 	  timerTick() {
 	  	let now = moment();
 	  	let then = moment(this.contest.end_time);
+	  	let start = moment(this.contest.start_time);
 	  	this.remainingTime = moment.duration(then.diff(now)).format('HH:mm:ss')
+
+	  	this.contestStarted = now.isAfter(start);
 	  },
   },
   beforeDestroy() {

@@ -3,3 +3,5 @@ gojudge.exe
 
 client/node_modules
 client/dist
+sandbox
+*.exe

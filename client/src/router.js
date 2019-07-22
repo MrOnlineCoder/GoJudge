@@ -7,6 +7,7 @@ import Submissions from '@/views/Submissions.vue'
 import Login from '@/views/Login.vue'
 import Admin from '@/views/Admin.vue'
 import Problem from '@/views/Problem.vue'
+import Submit from '@/views/Submit.vue'
 
 Vue.use(Router)
 
@@ -36,6 +37,16 @@ export default new Router({
       path: '/problem/:idx',
       name: 'problem',
       component: Problem
+    },
+    {
+      path: '/submit',
+      name: 'submit',
+      component: Submit
+    },
+    {
+      path: '/submit/:idx',
+      name: 'submit_idx',
+      component: Submit
     },
     {
       path: '/admin',

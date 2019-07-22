@@ -2,12 +2,23 @@ package contest
 
 import (
 	"strconv"
+	"time"
 	"net/http"
+ 	"encoding/json"
 	
 	"gojudge/api/utils"
+	"gojudge/db"
+	"gojudge/auth"
+	"gojudge/judge"
 
  	"github.com/gorilla/mux"
 )
+
+type ContestSubmitBody struct {
+	ProblemIndex int `json:"problem_index"`
+	Language string `json:"language"`
+	Sourcecode string `json:"sourcecode"`
+}
 
 func ContestStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if !IsContestActive() {
@@ -33,6 +44,14 @@ func ContestProblemsetHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
+	if !IsStarted() {
+		utils.SendSuccess(w, map[string]interface{} {
+			"active": true,
+			"not_started": true,
+		});
+		return;
+	}
+
 	utils.SendSuccess(w, map[string]interface{} {
 		"active": true,
 		"problemset": GetProblemset(),
@@ -43,6 +62,14 @@ func ContestProblemHandler(w http.ResponseWriter, r *http.Request) {
 	if !IsContestActive() {
 		utils.SendSuccess(w, map[string]interface{} {
 			"active": false,
+		});
+		return;
+	}
+
+	if !IsStarted() {
+		utils.SendSuccess(w, map[string]interface{} {
+			"active": true,
+			"not_started": true,
 		});
 		return;
 	}
@@ -69,8 +96,93 @@ func ContestProblemHandler(w http.ResponseWriter, r *http.Request) {
 	});
 }
 
+func ContestSubmitHandler(w http.ResponseWriter, r *http.Request) {
+	if !IsContestActive() {
+		utils.SendError(w, "Contest not active.");
+		return;
+	}
+
+	if !IsStarted() {
+		utils.SendError(w, "Contest not started.");
+		return;
+	}
+
+	user, err := auth.ValidateAccess(r, auth.ACCESS_PARTICIPANT);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	body := &ContestSubmitBody{};
+
+	problemset := GetProblemset();
+
+	err = json.NewDecoder(r.Body).Decode(body);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	problem := problemset[body.ProblemIndex];
+
+	tests, err := db.GetTestsForProblem(problem.Id);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	sub := db.Submission{};
+
+	sub.UserId = user.Id;
+	sub.Time = time.Now().Unix() * 1000;
+	sub.Language = body.Language;
+	sub.Sourcecode = body.Sourcecode;
+	sub.ProblemId = problem.Id;
+	sub.Verdict = judge.VERDICT_PENDING;
+	sub.PassedTests = 0;
+
+	ok := db.CreateSubmission(sub);
+
+	if !ok {
+		utils.SendError(w, "Database write error.");
+		return;
+	}
+
+	judge.ProcessSubmission(&problem, &sub, tests);
+
+	utils.SendSuccess(w, map[string]interface{} {});
+}
+
+func ContestSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := auth.ValidateAccess(r, auth.ACCESS_PARTICIPANT);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	submissions, err := db.GetUserSubmissions(user.Id);	
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	utils.SendSuccess(w, map[string]interface{} {
+		"submissions": submissions,
+	});
+}
+
+
+
 func InitContestAPI(router *mux.Router) {
 	router.HandleFunc("/status", ContestStatusHandler).Methods("GET");
 	router.HandleFunc("/problemset", ContestProblemsetHandler).Methods("GET");
 	router.HandleFunc("/problemset/{index}", ContestProblemHandler).Methods("GET");
+	
+	router.HandleFunc("/submit", ContestSubmitHandler).Methods("POST");
+	router.HandleFunc("/submissions", ContestSubmissionsHandler).Methods("GET");
 }

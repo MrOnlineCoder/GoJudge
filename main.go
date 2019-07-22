@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"gojudge/server"
 	"gojudge/db"
+	"gojudge/judge"
 )
 
 func main() {
@@ -24,6 +25,9 @@ func main() {
 		fmt.Println("ERROR: couldn't initialize database.")
 		return
 	}
+
+	fmt.Println("Starting judge workers...");
+	judge.StartWorkers();
 
 	fmt.Println("Starting server...");
 

@@ -2,6 +2,7 @@ package contest
 
 import (
 	"log"
+	"time"
 	"gojudge/db"
 )
 
@@ -35,6 +36,13 @@ func RebuildProblemsetCache() {
 
 func GetProblemset() []db.Problem {
 	return problemsetCache;
+}
+
+func IsStarted() bool {
+	now := time.Now().Unix()*1000;
+	start := currentContest.StartTime;
+
+	return now > start;
 }
 
 func SetContest(c Contest) {

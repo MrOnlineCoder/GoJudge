@@ -12,7 +12,10 @@
     <b-alert variant="warning" :show="!contestActive && !busy">
       There is no running contest right now.
     </b-alert>
-    <div v-if="!busy">
+    <b-alert variant="warning" :show="contestActive && !contestStarted && !busy">
+      Contest has not started yet, please wait.
+    </b-alert>
+    <div v-if="!busy && contestActive && contestStarted">
       <div class="problemset-container" v-for="p,idx in problemset" > 
         <b-card  
           :title="`${shortnames[idx]} - ${p.name}`">
@@ -32,6 +35,13 @@
               View problem {{shortnames[idx]}}
             </b-button>
           </router-link> 
+
+          <router-link :to="'/submit/'+idx">
+            <b-button variant="warning" class="submit-btn">
+              <font-awesome-icon icon="paper-plane"/>
+              Submit solution
+            </b-button>
+          </router-link> 
         </b-card> 
         <hr>
       </div>
@@ -49,6 +59,7 @@ export default {
       busy: true,
   		problemset: [],
   		contestActive: false,
+      contestStarted: true,
   		error: null,
       shortnames: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
   	}
@@ -56,18 +67,23 @@ export default {
   methods: {
   	fetchProblemset() {
   		axios.get('/api/contest/problemset').then(response => {
-  			if (!response.data.success) {
+  			this.busy = false;
+
+        if (!response.data.success) {
   				this.error = response.data.message;
   				return;
   			}
 
   			this.contestActive = response.data.active;
 
+        if (response.data.not_started) {
+          this.contestStarted = false;
+          return;
+        }
+
   			if (this.contestActive) {
   				this.problemset = response.data.problemset;
   			}
-
-        this.busy = false;
   		}).catch(error => {
   			this.error = error;
   		});
@@ -78,3 +94,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.submit-btn {
+  margin-left: 5px;
+}
+</style>
