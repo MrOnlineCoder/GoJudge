@@ -89,6 +89,7 @@ export default {
 				"PENDING": "text-muted",
 				"QUEUED": "text-dark",
 				"COMPILING": "text-primary",
+				"COMPILATION_ERROR": "text-danger",
 				"CHECKING": "text-warning",
 				"WRONG_ANSWER": "text-danger",
 				"PRESENTATION_ERROR": "text-danger",

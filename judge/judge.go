@@ -11,6 +11,7 @@ const (
 	VERDICT_COMPILING = "COMPILING"
 	VERDICT_CHECKING = "CHECKING"
 	VERDICT_ERROR_WA = "WRONG_ANSWER"
+	VERDICT_ERROR_COMPILE = "COMPILATION_ERROR"
 	VERDICT_ERROR_PE = "PRESENTATION_ERROR"
 	VERDICT_ERROR_FAIL = "FAIL"
 	VERDICT_OK = "OK" 
@@ -24,8 +25,8 @@ type Judgement struct {
 }
 
 type JudgeResult struct {
-	submission_id int
-	verdict string
+	SubmissionId int
+	Verdict string
 }
 
 var resultsChan chan JudgeResult
@@ -44,9 +45,16 @@ func StartWorkers() {
   go ResultsWatch();
 }
 
+func MakeResult(jd *Judgement, verdict string) JudgeResult {
+	return JudgeResult{
+		SubmissionId: jd.Submission.Id,
+		Verdict: verdict,
+	};
+}
+
 func ResultsWatch() {
 	for r := range resultsChan {
-		
+		db.SetSubmissionVerdict(r.SubmissionId, r.Verdict);
 	}
 }
 

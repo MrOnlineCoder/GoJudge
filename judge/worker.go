@@ -5,7 +5,6 @@ import (
   "os"
   "os/exec"
   "log"
-  "bytes"
   "path/filepath"
   "crypto/sha256"
   "encoding/hex"
@@ -21,7 +20,7 @@ func hash256(raw string) string {
 }
 
 func makeJudgementId(jd *Judgement) string {
-	return fmt.Sprintf("%d_%s", jd.Submission.Time, hash256(jd.Submission.Sourcecode)[0:16]);
+	return fmt.Sprintf("sub_%d_%s", jd.Submission.Id, hash256(jd.Submission.Sourcecode));
 }
 
 func makeSourcePath(jd *Judgement) string {
@@ -57,14 +56,7 @@ func compile(jd *Judgement) error {
 	sourcepath := makeSourcePath(jd);
 	exepath := makeExePath(jd);
 
-	//args := fmt.Sprintf("-o \"%s\" \"%s\"", exepath, sourcepath);
-
 	cmd := exec.Command("g++", "-o", exepath, sourcepath);
-
-	var out bytes.Buffer;
-	var eb bytes.Buffer;
-	cmd.Stdout = &out;
-	cmd.Stderr = &eb;
 
 	err := cmd.Run();
 
@@ -80,7 +72,7 @@ func singleTest() {
 }
 
 func runTests(jd *Judgement) error {
-	
+	return nil
 }
 
 func JudgeWorker(worker_id int, judgements chan *Judgement, results chan JudgeResult) {
@@ -89,16 +81,28 @@ func JudgeWorker(worker_id int, judgements chan *Judgement, results chan JudgeRe
 	for j := range judgements {
 		j.Id = makeJudgementId(j);
 
+		results <- MakeResult(j, VERDICT_QUEUED);
+
     log.Printf("[Judge] Worker %d starts judging %s", worker_id, j.Id);
 
     err := writeSourcecode(j);
 
     if err != nil {
+    	results <- MakeResult(j, VERDICT_ERROR_FAIL);
     	log.Printf("[Judge] ERROR: Couldn't write sourcecode: %s", err.Error())
     	continue;
     }
 
+    results <- MakeResult(j, VERDICT_COMPILING);
+
     err = compile(j);
+
+    if err != nil {
+    	results <- MakeResult(j, VERDICT_ERROR_COMPILE);
+    	continue;
+    }
+
+    results <- MakeResult(j, VERDICT_OK);
 
     log.Printf("[Judge] Worker %d finished judging %s", worker_id, j.Id);
   }

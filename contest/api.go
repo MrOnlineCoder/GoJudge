@@ -144,12 +144,14 @@ func ContestSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	sub.Verdict = judge.VERDICT_PENDING;
 	sub.PassedTests = 0;
 
-	ok := db.CreateSubmission(sub);
+	subId, err := db.CreateSubmission(sub);
 
-	if !ok {
+	if err != nil {
 		utils.SendError(w, "Database write error.");
 		return;
 	}
+
+	sub.Id = subId;
 
 	judge.ProcessSubmission(&problem, &sub, tests);
 
@@ -175,8 +177,6 @@ func ContestSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 		"submissions": submissions,
 	});
 }
-
-
 
 func InitContestAPI(router *mux.Router) {
 	router.HandleFunc("/status", ContestStatusHandler).Methods("GET");

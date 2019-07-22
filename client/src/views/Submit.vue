@@ -22,7 +22,7 @@
 				<b-form-textarea
 						      v-model="submitData.sourcecode"
 						      placeholder="Paste / type your solution here"
-						      rows="5"
+						      rows="8"
 						      required
 				></b-form-textarea>
 			</b-form-group>

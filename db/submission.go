@@ -15,7 +15,7 @@ type Submission struct {
 	PassedTests int `json:"passed_tests"`
 }
 
-func CreateSubmission(s Submission) bool {
+func CreateSubmission(s Submission) (int, error) {
 	const createSql = `
 		INSERT INTO "submissions" (user_id, time, lang, sourcecode, problem_id, verdict, passed_tests) VALUES
 		(
@@ -29,7 +29,7 @@ func CreateSubmission(s Submission) bool {
 		);
 	`;
 
-	_, err := Maindb.Exec(createSql,
+	res, err := Maindb.Exec(createSql,
 		s.UserId,
 		s.Time,
 		s.Language,
@@ -40,10 +40,16 @@ func CreateSubmission(s Submission) bool {
 	);
 
 	if err != nil {
-		return false
+		return -1, err
 	}
 
-	return true
+	id, err := res.LastInsertId();
+
+	if err != nil {
+		return -1, err
+	}
+
+	return int(id), nil
 }
 
 func GetUserSubmissions(user_id int) ([]Submission, error) {
@@ -84,18 +90,17 @@ func GetUserSubmissions(user_id int) ([]Submission, error) {
 func SetSubmissionVerdict(id int, v string) bool {
 	const updateSql = `
 		UPDATE "submissions" SET
-		"verdict" = $1,
+		"verdict" = $1
 		WHERE
 		"id" = $2
 	`;
 
 	_, err := Maindb.Exec(updateSql, 
 		v,
-		id
+		id,
 	);
 
 	if err != nil {
-		log.Println(err)
 		return false
 	}
 
