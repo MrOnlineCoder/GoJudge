@@ -1,7 +1,10 @@
 package db
 
 import (
+	"fmt"
 	"errors"
+	"strings"
+	"strconv"
 )
 
 type Problem struct {
@@ -51,6 +54,43 @@ func GetAllProblems() ([]Problem, error) {
     if err != nil {
       continue
     }
+    list = append(list, p)
+  }
+
+	rows.Close()
+
+	return list, nil
+}
+
+func GetProblemset(arr []int) ([]Problem, error) {
+	const getAllSql = `
+		SELECT * FROM "problems" WHERE "id" IN (%s)
+	`;
+
+	list := []Problem{}
+
+	//We receive array of ints
+	//To build SQL query, we have to transform it to []string
+	var ids []string
+	for _, i := range arr {
+	    ids = append(ids, strconv.Itoa(i))
+	}
+
+	builtQuery := fmt.Sprintf(getAllSql, strings.Join(ids, ", "));
+
+	rows, err := Maindb.Query(builtQuery);
+
+	if err != nil {
+		return list, errors.New("Database query failed.");
+	}
+
+	for rows.Next() {
+    p := Problem{}
+    err := rows.Scan(&p.Id, &p.Name, &p.Timelimit, &p.Memlimit, &p.Text)
+    if err != nil {
+      continue
+    }
+    fmt.Println("id #", p.Id)
     list = append(list, p)
   }
 

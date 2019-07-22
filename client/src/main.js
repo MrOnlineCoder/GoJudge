@@ -31,6 +31,14 @@ library.add(fas);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 /*
+  Moment.js
+*/
+import moment from 'moment'
+import momentDurationFormatSetup from "moment-duration-format"
+
+momentDurationFormatSetup(moment);
+
+/*
 	Application
 */
 
@@ -55,6 +63,14 @@ Vue.directive('permission', {
       el.style.display = 'none';
     }
   }
+});
+
+Vue.filter('formatDatetime', (val) => {
+  return moment(val).format('DD.MM.YYYY HH:mm:ss');
+});
+
+Vue.filter('formatTime', (val) => {
+  return moment(val).format('HH:mm:ss');
 });
 
 Vue.filter('formatTimelimit', (val) => {

@@ -6,11 +6,15 @@
 </template>
 
 <script>
-  import TheNavbar from '@/components/TheNavbar'
+import TheNavbar from '@/components/TheNavbar'
+import ContestService from '@/services/contest'
 
-  export default {
-    components: {
-      TheNavbar
-    }
+export default {
+  components: {
+    TheNavbar
+  },
+  created() {
+    ContestService.loadStatus();
   }
+}
 </script>

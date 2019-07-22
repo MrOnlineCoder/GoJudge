@@ -93,27 +93,40 @@ func GetProblem(id int) (Problem, error) {
 
  return problem, nil
 }
-
-func UpdateProblem(p Problem) bool {
+*/
+func UpdateTest(t Test) bool {
 	const updateSql = `
-		UPDATE "problems" SET
-		"name" = $1,
-		"timelimit" = $2,
-		"memlimit" = $3,
-		"text" = $4
+		UPDATE "tests" SET
+		"problem_id" = $1,
+		"test_index" = $2,
+		"check_method" = $3,
+		"checker_id" = $4,
+		"is_sample" = $5,
+		"input" = $6,
+		"output" = $7
 		WHERE
-		"id" = $5
+		"id" = $8
 	`;
 
-	_, err := Maindb.Exec(updateSql, p.Name, p.Timelimit, p.Memlimit, p.Text, p.Id);
+	_, err := Maindb.Exec(updateSql, 
+		t.ProblemId,
+		t.Index,
+		t.CheckMethod,
+		t.CheckerId,
+		t.IsSample,
+		t.Input,
+		t.Output,
+		t.Id,
+	);
 
 	if err != nil {
+		log.Println(err)
 		return false
 	}
 
 	return true
 }
-*/
+
 
 func DeleteTest(tid int) bool {
 	const deleteSql = `

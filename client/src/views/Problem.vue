@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="problem-container">
 		<div class="problem-header">
 			<h2>{{ problem.name }}</h2>
 			<small>Time Limit: <b>{{ problem.timelimit | formatTimelimit}}</b> </small>
@@ -7,6 +7,7 @@
 			<small>Memory Limit: <b>{{ problem.memlimit | formatMemlimit}}</b> </small>
 			<hr>
 		</div>
+		<ErrorBlock :err="error"/>
 		<div class="problem-text">
 			<div v-html="renderedProblemText"></div>
 		</div>
@@ -16,41 +17,39 @@
 
 <script>
 import marked from 'marked'
+import axios from 'axios'
 
 export default {
 	data() {
 		return {
 			problem: {
-				name: "",
-				timelimit: "",
-				memlimit: "",
-				text: ""
-			}
+				name: "Loading...",
+				timelimit: 0,
+				memlimit: 0,
+				text: 'Loading...'
+			},
+			error: null
 		}
 	},
 	methods: {
 		fetchProblem() {
-			this.problem = {
-				name: "B - Оливер и минимум",
-				timelimit: 2000,
-				memlimit: 131072,
-				text: `Оливер поспорил со своим другом Джеком, что сможет сделать массив с самым минимальным числом. Джек не верит Оливеру, и требует программы, которая найдет минимум в массиве и подтвердит умение Оливера. 
+			axios.get(`/api/contest/problemset/${this.$route.params.idx}`)
+				.then(response => {
+					if (!response.data.success) {
+						this.error = response.data.message;
+						return;
+					}
 
-На вход дается число **n**, (1 < **n** < 10000). Дальше идут **n** чисел. Выведите минимальное число из этих **n** чисел. 
+					if (!response.data.active) {
+						this.$router.push('/');
+						return;
+					}
 
-Пример:
-
-Ввод:
-\`\`\`
-4
-8 3 9 5
-\`\`\`
-
-Вывод:
-\`\`\`
-3
-\`\`\``
-			}
+					this.problem = response.data.problem;
+				})
+				.catch(error => {
+					this.error = error;
+				})
 		}
 	},
 	computed: {
@@ -65,6 +64,10 @@ export default {
 </script>
 
 <style scoped>
+.problem-container {
+	margin-top: 25px;
+}
+
 .problem-header {
 	text-align: center;
 }

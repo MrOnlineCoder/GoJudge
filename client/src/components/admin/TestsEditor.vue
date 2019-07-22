@@ -27,6 +27,7 @@
 					<th>Checking Method</th>
 					<th>Is Sample</th>
 					<th>Input/Output</th>
+					<th>Edit</th>
 					<th>Delete</th>
 				</thead>
 				<tbody>
@@ -36,6 +37,11 @@
 						<td>{{check_methods[test.check_method]}}</td>
 						<td>{{test.is_sample ? 'Yes' : 'No'}}</td>
 						<td>{{test.input.length}} B / {{test.output.length}} B</td>
+						<td>
+							<b-button variant="warning" @click="openEditTestDialog(test)">
+								<font-awesome-icon icon="pencil-alt"/>
+							</b-button>
+						</td>
 						<td>
 							<b-button variant="danger" @click="openDeleteTestDialog(test.id)">
 								<font-awesome-icon icon="trash"/>
@@ -48,14 +54,14 @@
 
 		<b-modal
 			header-bg-variant="success"
-			title="Create new test"
+			title="Create/edit new test"
 			ref="createTestModal"
 			ok-title="Cancel"
 			ok-only
 			no-close-on-backdrop
 			size="lg">
 			<ErrorBlock :err="error"/>
-			<b-form @submit.prevent="createTest">
+			<b-form @submit.prevent="submitTest">
 	      <b-form-group label="Problem ID:">
 	        <b-form-input
 	          v-model="testData.problem_id"
@@ -113,7 +119,7 @@
 
 	      <b-button variant="success" type="submit">
 	      	<font-awesome-icon icon="save"/>
-	      	Create
+	      	{{ isEditing ? 'Save': 'Create'}}
 	      </b-button>
 	    </b-form>
 		</b-modal>
@@ -139,6 +145,7 @@ export default {
 				input: null,
 				output: null
 			},
+			isEditing: false,
 			check_methods: {
 				0: 'Strict comparison',
 				1: 'Token comparison',
@@ -174,10 +181,17 @@ export default {
 		openNewTestDialog() {
 			this.testData.problem_id = this.selectedProblem;
 			this.testData.test_index = this.tests.length+1;
+			this.isEditing = false;
 			this.$refs.createTestModal.show();
 		},
-		createTest() {
-			axios.post('/api/admin/tests/createTest', {
+		openEditTestDialog(test) {
+			this.testData = test;
+			this.isEditing = true;
+			this.$refs.createTestModal.show();
+		},
+
+		saveTest(endpoint) {
+			axios.post(endpoint, {
 				test: this.testData
 			}).then(response => {
 				if (!response.data.success) {
@@ -191,8 +205,15 @@ export default {
 
 				this.error = null;
 			}).catch(error => {
-				this.error = `Create Test Request failed: ${error}`
+				this.error = `Create/Save Test Request failed: ${error}`
 			});
+		},
+		submitTest() {
+			if (this.isEditing) {
+				this.saveTest('/api/admin/tests/editTest');
+			} else {
+				this.saveTest('/api/admin/tests/createTest');
+			}
 		}
 	},
 	watch: {

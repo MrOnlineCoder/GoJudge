@@ -16,6 +16,9 @@ type CreateTestBody struct {
 	Test db.Test `json:"test"`
 }
 
+type UpdateTestBody struct {
+	Test db.Test `json:"test"`
+}
 
 func GetProblemTestsHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := auth.ValidateAccess(r, auth.ACCESS_ADMIN);
@@ -64,6 +67,33 @@ func CreateTestHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ok := db.CreateTest(parsedBody.Test);
+
+	if !ok {
+		utils.SendError(w, "Database write error.");
+		return;
+	}
+
+	utils.SendSuccess(w, map[string]interface{}{});
+}
+
+func EditTestHandler(w http.ResponseWriter, r *http.Request) {
+	_, err := auth.ValidateAccess(r, auth.ACCESS_ADMIN);
+	
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	parsedBody := &UpdateTestBody{};
+
+	err = json.NewDecoder(r.Body).Decode(parsedBody);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	ok := db.UpdateTest(parsedBody.Test);
 
 	if !ok {
 		utils.SendError(w, "Database write error.");

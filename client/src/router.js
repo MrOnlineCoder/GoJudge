@@ -33,7 +33,7 @@ export default new Router({
       component: Submissions
     },
     {
-      path: '/problem/:id',
+      path: '/problem/:idx',
       name: 'problem',
       component: Problem
     },

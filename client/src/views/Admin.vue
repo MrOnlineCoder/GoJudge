@@ -6,8 +6,8 @@
 	    <b-tab title="General" active>
 	    	
 	    </b-tab>
-	    <b-tab title="Status">
-	    	
+	    <b-tab title="Contest">
+	    	<ContestEditor />
 	    </b-tab>
 	    <b-tab title="Users">
 	    	<UsersEditor />
@@ -26,6 +26,7 @@
 import UsersEditor from '@/components/admin/UsersEditor.vue'
 import ProblemsEditor from '@/components/admin/ProblemsEditor.vue'
 import TestsEditor from '@/components/admin/TestsEditor.vue'
+import ContestEditor from '@/components/admin/ContestEditor.vue'
 
 export default {
 		data() {
@@ -44,7 +45,8 @@ export default {
 		components: {
 			UsersEditor,
 			TestsEditor,
-			ProblemsEditor
+			ProblemsEditor,
+			ContestEditor
 		}
 	}
 </script>

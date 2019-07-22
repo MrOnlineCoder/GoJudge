@@ -5,6 +5,7 @@ import (
 	
 	"gojudge/auth"
 	"gojudge/admin"
+	"gojudge/contest"
 )
 
 var router *mux.Router;
@@ -22,6 +23,10 @@ func Create() *mux.Router {
 	// /api/admin
 	adminRouter := apiRouter.PathPrefix("/admin").Subrouter();
 	admin.InitAdminAPI(adminRouter);
+
+	// /api/contest
+	contestRouter := apiRouter.PathPrefix("/contest").Subrouter();
+	contest.InitContestAPI(contestRouter);
 
 	return router;
 }
