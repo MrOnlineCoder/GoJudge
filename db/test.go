@@ -2,56 +2,72 @@ package db
 
 import (
 	"errors"
+	"log"
 )
 
-type Problem struct {
+type Test struct {
 	Id int `json:"id"`
-	Name string `json:"name"`
-	Timelimit int `json:"timelimit"`
-	Memlimit int `json:"memlimit"`
-	Text string `json:"text"`
+	ProblemId int `json:"problem_id"`
+	Index int `json:"test_index"`
+	CheckMethod int `json:"check_method"`
+	CheckerId int `json:"checker_id"`
+	IsSample bool `json:"is_sample"`
+	Input string `json:"input"`
+	Output string `json:"output"`
 }
 
-func CreateProblem(p Problem) bool {
+func CreateTest(t Test) bool {
 	const createSql = `
-		INSERT INTO "problems" (name, timelimit, memlimit, text) VALUES
+		INSERT INTO "tests" (problem_id, test_index, check_method, checker_id, is_sample, input, output) VALUES
 		(
 			$1,
 			$2,
 			$3,
-			$4
+			$4,
+			$5,
+			$6,
+			$7
 		);
 	`;
 
-	_, err := Maindb.Exec(createSql, p.Name, p.Timelimit, p.Memlimit, p.Text);
+	_, err := Maindb.Exec(createSql, t.ProblemId, t.Index, t.CheckMethod, t.CheckerId, t.IsSample, t.Input, t.Output);
 
 	if err != nil {
+		log.Println(err);
 		return false
 	}
 
 	return true
 }
 
-func GetAllProblems() ([]Problem, error) {
+func GetTestsForProblem(problem_id int) ([]Test, error) {
 	const getAllSql = `
-		SELECT * FROM "problems"
+		SELECT * FROM "tests" WHERE "problem_id" = $1
 	`;
 
-	list := []Problem{}
+	list := []Test{}
 
-	rows, err := Maindb.Query(getAllSql);
+	rows, err := Maindb.Query(getAllSql, problem_id);
 
 	if err != nil {
 		return list, errors.New("Database query failed.");
 	}
 
 	for rows.Next() {
-    p := Problem{}
-    err := rows.Scan(&p.Id, &p.Name, &p.Timelimit, &p.Memlimit, &p.Text)
+    t := Test{}
+    err := rows.Scan(&t.Id, 
+    	&t.ProblemId, 
+    	&t.Index, 
+    	&t.CheckMethod, 
+    	&t.CheckerId, 
+    	&t.IsSample, 
+    	&t.Input,
+    	&t.Output)
+
     if err != nil {
       continue
     }
-    list = append(list, p)
+    list = append(list, t)
   }
 
 	rows.Close()
@@ -59,6 +75,7 @@ func GetAllProblems() ([]Problem, error) {
 	return list, nil
 }
 
+/*
 func GetProblem(id int) (Problem, error) {
 	const getProblemSql = `
 		SELECT * FROM "problems" WHERE "id" = $1
@@ -96,13 +113,14 @@ func UpdateProblem(p Problem) bool {
 
 	return true
 }
+*/
 
-func DeleteProblem(problem_id int) bool {
+func DeleteTest(tid int) bool {
 	const deleteSql = `
-		DELETE FROM "problems" WHERE "id" = $1
+		DELETE FROM "tests" WHERE "id" = $1
 	`;
 
-	_, err := Maindb.Exec(deleteSql, problem_id);
+	_, err := Maindb.Exec(deleteSql, tid);
 
 	if err != nil {
 		return false

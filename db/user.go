@@ -14,7 +14,7 @@ type User struct {
 
 func CreateUser(user User) bool {
 	const createSql = `
-		INSERT INTO 'users' (username, fullname, password, access) VALUES
+		INSERT INTO "users" (username, fullname, password, access) VALUES
 		(
 			$1,
 			$2,

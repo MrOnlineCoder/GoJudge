@@ -15,6 +15,9 @@
 	    <b-tab title="Problems">
 	    	<ProblemsEditor />
 	    </b-tab>
+	    <b-tab title="Tests">
+	    	<TestsEditor />
+	    </b-tab>
   	</b-tabs>
 	</div>
 </template>
@@ -22,8 +25,9 @@
 <script>
 import UsersEditor from '@/components/admin/UsersEditor.vue'
 import ProblemsEditor from '@/components/admin/ProblemsEditor.vue'
+import TestsEditor from '@/components/admin/TestsEditor.vue'
 
-	export default {
+export default {
 		data() {
 			return {
 
@@ -39,6 +43,7 @@ import ProblemsEditor from '@/components/admin/ProblemsEditor.vue'
 		},
 		components: {
 			UsersEditor,
+			TestsEditor,
 			ProblemsEditor
 		}
 	}

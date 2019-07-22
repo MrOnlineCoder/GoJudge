@@ -58,9 +58,22 @@ func checkTables() {
 		  "passed_tests" INTEGER
 	);`;
 
+	const testsSql = `
+		CREATE TABLE IF NOT EXISTS "tests" (
+		  "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+		  "problem_id" INTEGER,
+		  "test_index" INTEGER,
+		  "check_method" INTEGER,
+		  "checker_id" INTEER,
+		  "is_sample" INTEGER,
+		  "input" TEXT,
+		  "output" TEXT
+	);`;
+
 	runSimpleStmt(usersSql);
 	runSimpleStmt(problemsSql);
 	runSimpleStmt(submissionsSql);
+	runSimpleStmt(testsSql);
 }
 
 func insertDefaults() {

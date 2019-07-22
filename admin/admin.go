@@ -5,6 +5,7 @@ import (
 
 	"gojudge/admin/users"
 	"gojudge/admin/problems"
+	"gojudge/admin/tests"
 )
 
 func InitAdminAPI(router *mux.Router) {
@@ -16,4 +17,7 @@ func InitAdminAPI(router *mux.Router) {
 	router.HandleFunc("/createProblem", problems.CreateProblemHandler).Methods("POST");
 	router.HandleFunc("/editProblem", problems.UpdateProblemHandler).Methods("POST");
 	router.HandleFunc("/deleteProblem", problems.DeleteProblemHandler).Methods("POST");
+	
+	router.HandleFunc("/tests/{problem_id}", tests.GetProblemTestsHandler).Methods("GET");
+	router.HandleFunc("/tests/createTest", tests.CreateTestHandler).Methods("POST");
 }
