@@ -14,6 +14,7 @@
 					<th>Date</th>
 					<th>Language</th>
 					<th>Status</th>
+					<th>Passed Tests</th>
 				</thead>
 				<tbody>
 					<tr v-for="s in submissions">
@@ -23,6 +24,9 @@
 						<td>{{ s.lang }}</td>
 						<td :class="getVerdictClass(s.verdict)">
 							{{ s.verdict }}
+						</td>
+						<td>
+							{{ s.passed_tests }}
 						</td>
 					</tr>
 				</tbody>
@@ -94,6 +98,9 @@ export default {
 				"WRONG_ANSWER": "text-danger",
 				"PRESENTATION_ERROR": "text-danger",
 				"FAIL": "text-danger",
+				"TIME_LIMIT_EXCEEDED": "text-danger",
+				"MEMORY_LIMIT_EXCEEDED": "text-danger",
+				"RUNTIME_ERROR": "text-danger",
 				"OK": "text-success"
 			};
 

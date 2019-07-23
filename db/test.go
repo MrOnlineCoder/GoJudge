@@ -75,6 +75,41 @@ func GetTestsForProblem(problem_id int) ([]Test, error) {
 	return list, nil
 }
 
+func GetSamplesForProblem(problem_id int) ([]Test, error) {
+	const getAllSql = `
+		SELECT * FROM "tests" WHERE "problem_id" = $1 AND "is_sample" = 1
+	`;
+
+	list := []Test{}
+
+	rows, err := Maindb.Query(getAllSql, problem_id);
+
+	if err != nil {
+		return list, errors.New("Database query failed.");
+	}
+
+	for rows.Next() {
+    t := Test{}
+    err := rows.Scan(&t.Id, 
+    	&t.ProblemId, 
+    	&t.Index, 
+    	&t.CheckMethod, 
+    	&t.CheckerId, 
+    	&t.IsSample, 
+    	&t.Input,
+    	&t.Output)
+
+    if err != nil {
+      continue
+    }
+    list = append(list, t)
+  }
+
+	rows.Close()
+
+	return list, nil
+}
+
 /*
 func GetProblem(id int) (Problem, error) {
 	const getProblemSql = `

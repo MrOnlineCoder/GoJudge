@@ -24,6 +24,7 @@
 				<hr>
 				<code v-html="example.output.replace('\n', '<br>')"></code>
 			</b-card>
+			<br>
 		</div>
 		<router-link :to="'/submit/'+this.$route.params.idx">
       <b-button variant="warning" class="submit-btn">
@@ -52,6 +53,20 @@ export default {
 		}
 	},
 	methods: {
+		fetchExamples() {
+			axios.get(`/api/contest/problemset/${this.$route.params.idx}/examples`)
+				.then(response => {
+					if (!response.data.success) {
+						this.error = response.data.message;
+						return;
+					}
+
+					this.examples = response.data.examples;
+				})
+				.catch(error => {
+					this.error = error;
+			});
+		},
 		fetchProblem() {
 			axios.get(`/api/contest/problemset/${this.$route.params.idx}`)
 				.then(response => {
@@ -66,6 +81,7 @@ export default {
 					}
 
 					this.problem = response.data.problem;
+					this.fetchExamples();
 				})
 				.catch(error => {
 					this.error = error;

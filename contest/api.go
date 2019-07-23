@@ -20,6 +20,11 @@ type ContestSubmitBody struct {
 	Sourcecode string `json:"sourcecode"`
 }
 
+type ContestExample struct {
+	Input string `json:"input"`
+	Output string `json:"output"`
+}
+
 func ContestStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if !IsContestActive() {
 		utils.SendSuccess(w, map[string]interface{} {
@@ -93,6 +98,62 @@ func ContestProblemHandler(w http.ResponseWriter, r *http.Request) {
 	utils.SendSuccess(w, map[string]interface{} {
 		"active": true,
 		"problem": problem,
+	});
+}
+
+func ContestProblemExamplesHandler(w http.ResponseWriter, r *http.Request) {
+	if !IsContestActive() {
+		utils.SendSuccess(w, map[string]interface{} {
+			"active": false,
+		});
+		return;
+	}
+
+	if !IsStarted() {
+		utils.SendSuccess(w, map[string]interface{} {
+			"active": true,
+			"not_started": true,
+		});
+		return;
+	}
+
+	params := mux.Vars(r);
+
+	problemIndex, err := strconv.Atoi(params["index"]);
+
+	if err != nil {
+		utils.SendError(w, "Invalid problem index.");
+		return;
+	}
+
+	if problemIndex >= len(GetProblemset()) {
+		utils.SendError(w, "Problem index out of range.");
+		return;
+	}
+
+	problem := GetProblemset()[problemIndex];
+
+	tests, err := db.GetSamplesForProblem(problem.Id);
+
+	if err != nil {
+		utils.SendError(w, "Database query error.");
+		return;
+	}
+
+	examples := []ContestExample{};
+
+	for _, test := range tests {
+		ex := ContestExample{};
+
+		ex.Input = test.Input;
+		ex.Output = test.Output;
+
+		examples = append(examples, ex);
+	}
+
+
+	utils.SendSuccess(w, map[string]interface{} {
+		"examples": examples,
 	});
 }
 
@@ -182,6 +243,7 @@ func InitContestAPI(router *mux.Router) {
 	router.HandleFunc("/status", ContestStatusHandler).Methods("GET");
 	router.HandleFunc("/problemset", ContestProblemsetHandler).Methods("GET");
 	router.HandleFunc("/problemset/{index}", ContestProblemHandler).Methods("GET");
+	router.HandleFunc("/problemset/{index}/examples", ContestProblemExamplesHandler).Methods("GET");
 	
 	router.HandleFunc("/submit", ContestSubmitHandler).Methods("POST");
 	router.HandleFunc("/submissions", ContestSubmissionsHandler).Methods("GET");

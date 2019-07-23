@@ -54,12 +54,12 @@ func CreateSubmission(s Submission) (int, error) {
 
 func GetUserSubmissions(user_id int) ([]Submission, error) {
 	const getForUserSql = `
-		SELECT * FROM "submissions" ORDER BY "time" DESC
+		SELECT * FROM "submissions" WHERE "user_id" = $1 ORDER BY "time" DESC
 	`;
 
 	list := []Submission{}
 
-	rows, err := Maindb.Query(getForUserSql);
+	rows, err := Maindb.Query(getForUserSql, user_id);
 
 	if err != nil {
 		return list, errors.New("Database query failed.");
@@ -87,16 +87,18 @@ func GetUserSubmissions(user_id int) ([]Submission, error) {
 	return list, nil
 }
 
-func SetSubmissionVerdict(id int, v string) bool {
+func SetSubmissionVerdict(id int, v string, tests int) bool {
 	const updateSql = `
 		UPDATE "submissions" SET
-		"verdict" = $1
+		"verdict" = $1,
+		"passed_tests" = $2
 		WHERE
-		"id" = $2
+		"id" = $3
 	`;
 
 	_, err := Maindb.Exec(updateSql, 
 		v,
+		tests,
 		id,
 	);
 
