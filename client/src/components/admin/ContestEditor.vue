@@ -15,11 +15,14 @@
 			<p v-if="!active">
 				Before acitvating the contest, please set contest name, start and end times and problemset in the form below.
 			</p>
-			<b-button variant="success" @click="saveContest()" v-if="!active">
+			<p v-if="active">
+				Contest is active now.
+			</p>
+			<b-button variant="success" @click="setContestActive(true)" v-if="!active">
 				<font-awesome-icon icon="rocket"/>
 				Activate contest
 			</b-button> 
-			<b-button variant="danger" v-if="active">
+			<b-button variant="danger" @click="setContestActive(false)" v-if="active">
 				<font-awesome-icon icon="stop"/>
 				Deactivate contest
 			</b-button>
@@ -29,6 +32,7 @@
 			<h4>
 				Contest
 			</h4>
+			<small>Latest contest data is loaded.</small>
 			<hr>
 			<b-form>
 				<b-form-group label="Name (title):">
@@ -70,10 +74,10 @@
 		      		<th>Delete</th>
 	      		</thead>
 	      		<tbody>
-	      			<tr v-for="problemID,idx in contest.problemset">
-	      				<td>{{ problemID }}</td>
+	      			<tr v-for="problem,idx in contest.problemset">
+	      				<td>{{ problem.id }}</td>
 	      				<td>{{ shortnames[idx] }} </td>
-	      				<td>{{ findProblem(problemID).name }}</td>
+	      				<td>{{ problem.name }}</td>
 	      				<td>
 	      				<b-button variant="danger" @click="contest.problemset.splice(idx, 1)">
 									<font-awesome-icon icon="trash"/>
@@ -83,6 +87,17 @@
 	      		</tbody>
 	      	</table>
 	      </b-form-group>
+
+	      <b-button variant="success" @click="saveContest()">
+	      	<font-awesome-icon icon="save"/>
+	      	Save contest
+	      </b-button>
+	      <br>
+	      <br>
+	      <b-button variant="warning" @click="resetContest()">
+	      	<font-awesome-icon icon="sync-alt"/>
+	      	Reset
+	      </b-button>
 			</b-form>
 		</b-card>
 		<br>
@@ -119,6 +134,7 @@
 	      </tbody>
 	    </table>
 		</b-modal>
+		<ErrorBlock :err="error"/>
 	</div>
 </template>
 
@@ -148,14 +164,21 @@ export default {
 		},
 		selectProblem(p) {
 			this.$refs.addProblemModal.hide();
-			this.contest.problemset.push(p.id);
-			this.$set(this.problemNamesCache, p.id, p);
+			this.contest.problemset.push(p);
 		},
 		setStartTimePreset(hours, mins) {
 			this.contest.start_time = moment().add(hours,'hours').add(mins, 'minutes').format('DD.MM.YYYY HH:mm:ss');
 		},
 		setEndTimePreset(hours, mins) {
 			this.contest.end_time = moment(this.contest.start_time, 'DD.MM.YYYY HH:mm:ss').add(hours,'hours').add(mins, 'minutes').format('DD.MM.YYYY HH:mm:ss');
+		},
+		resetContest() {
+			this.contest = {
+				name: null,
+				start_time: moment().format('DD.MM.YYYY HH:mm:ss'),
+				end_time: moment().add(1,'hours').format('DD.MM.YYYY HH:mm:ss'),
+				problemset: []
+			};
 		},
 		fetchStatus() {
 			axios.get('/api/contest/status').then(response => {
@@ -166,11 +189,20 @@ export default {
 
 				this.active = response.data.active;
 
-				if (this.active) {
-					this.contest = response.data.contest;
-					this.contest.start_time = moment(this.contest.start_time).format('DD.MM.YYYY HH:mm:ss');
-					this.contest.end_time = moment(this.contest.end_time).format('DD.MM.YYYY HH:mm:ss');
+			}).catch(error => {
+				this.error = error;
+			});
+		},
+		fetchContest() {
+			axios.get('/api/admin/contest/load').then(response => {
+				if (!response.data.success) {
+					this.error = response.data.message;
+					return;
 				}
+
+				this.contest = response.data.contest;
+				this.contest.start_time = moment(this.contest.start_time).format('DD.MM.YYYY HH:mm:ss');
+				this.contest.end_time = moment(this.contest.end_time).format('DD.MM.YYYY HH:mm:ss');
 			}).catch(error => {
 				this.error = error;
 			});
@@ -184,11 +216,27 @@ export default {
 
 				this.problems = response.data.problems;
 				this.fetchStatus();
+				this.fetchContest();
 			});
 		},
 		findProblem(id) {
 			return this.problems.find(item => { 
 				return item.id === id
+			});
+		},
+		setContestActive(mode) {
+			axios.post('/api/admin/contest/setActive', {
+				active: mode
+			}).then(response => {
+				if (!response.data.success) {
+					this.error = response.data.message;
+					return;
+				}
+
+				this.active = mode;
+				this.error = null;
+			}).catch(error => {
+				this.error = error;
 			});
 		},
 		saveContest() {
@@ -209,7 +257,7 @@ export default {
 			data.start_time = moment(data.start_time, 'DD.MM.YYYY HH:mm:ss').valueOf();
 			data.end_time = moment(data.end_time, 'DD.MM.YYYY HH:mm:ss').valueOf();
 
-			axios.post('/api/admin/contest/activate', {
+			axios.post('/api/admin/contest/save', {
 				contest: data
 			}).then(response => {
 				if (!response.data.success) {
@@ -217,7 +265,6 @@ export default {
 					return;
 				}
 
-				this.active = true;
 				this.error = null;
 			}).catch(error => {
 				this.error = error;
@@ -226,8 +273,10 @@ export default {
 	},
 	computed: {
 		filteredProblems() {
+			if (!this.problems || !this.contest || !this.contest.problemset) return [];
+
 			let list = this.problems.filter((item) => {
-				return !this.contest.problemset.includes(item.id);
+				return !this.contest.problemset.includes(item);
 			});
 
 			if (!this.addSearch) return list.slice(0,30);

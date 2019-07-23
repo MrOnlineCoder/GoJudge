@@ -69,7 +69,7 @@ Please note, not all features are well-tested and ready to use.
 
 ### TODO
 
-* Saving contest to a file (or DB)
+* ~~Saving contest to a file (or DB)~~
 * Scoreboard
 * Handle contest end and results
 * Jury user interface

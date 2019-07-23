@@ -11,25 +11,27 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"gojudge/server"
 	"gojudge/db"
 	"gojudge/judge"
+	"gojudge/contest"
 )
 
 func main() {
-	fmt.Println("= [GoJudge] =");	
-	fmt.Println("Loading database....");
+	log.Println("=== [GoJudge] ===");	
+	log.Println("[Main] Loading database....");
 
 	if !db.Initialize() {
-		fmt.Println("ERROR: couldn't initialize database.")
+		log.Fatal("ERROR: couldn't initialize database.")
 		return
 	}
 
-	fmt.Println("Starting judge workers...");
+	contest.LoadContest();
+
 	judge.StartWorkers();
 
-	fmt.Println("Starting server...");
+	log.Println("[Main] Starting server...");
 
 	server.Setup();
 	server.Run();	

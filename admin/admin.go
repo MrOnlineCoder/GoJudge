@@ -23,5 +23,7 @@ func InitAdminAPI(router *mux.Router) {
 	router.HandleFunc("/tests/createTest", tests.CreateTestHandler).Methods("POST");
 	router.HandleFunc("/tests/editTest", tests.EditTestHandler).Methods("POST");
 	
-	router.HandleFunc("/contest/activate", contest.ActivateContestHandler).Methods("POST");
+	router.HandleFunc("/contest/setActive", contest.ActivateContestHandler).Methods("POST");
+	router.HandleFunc("/contest/load", contest.LoadContestHandler).Methods("GET");
+	router.HandleFunc("/contest/save", contest.SaveContestHandler).Methods("POST");
 }

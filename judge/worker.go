@@ -27,6 +27,7 @@ func JudgeWorker(worker_id int, judgements chan *Judgement, results chan JudgeRe
     if err != nil {
     	j.Cleanup();
     	results <- MakeResult(j, VERDICT_ERROR_COMPILE);
+        log.Printf("[Judge] Worker %d finished judging #%d, failed to compile", worker_id, j.Submission.Id);
     	continue;
     }
 

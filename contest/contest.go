@@ -3,6 +3,9 @@ package contest
 import (
 	"log"
 	"time"
+	"encoding/json"
+	"io/ioutil"
+
 	"gojudge/db"
 )
 
@@ -10,32 +13,14 @@ type Contest struct {
 	Name string `json:"name"`
 	StartTime int64 `json:"start_time"`
 	EndTime int64 `json:"end_time"`
-	Problemset []int `json:"problemset"`
+	Problemset []db.Problem `json:"problemset"`
 }
 
 var currentContest Contest
 var isActive bool
-var problemsetCache []db.Problem
-
-func RebuildProblemsetCache() {
-	problemsetCache = []db.Problem{};
-
-	problemsetInts := currentContest.Problemset;
-
-	for _, id := range problemsetInts {
-			problem, err := db.GetProblem(id);
-
-			if err != nil {
-				log.Println("ERROR: Couldn't build problemset cache entry:", err)
-				continue;
-			}
-
-			problemsetCache = append(problemsetCache, problem)
-	}
-}
 
 func GetProblemset() []db.Problem {
-	return problemsetCache;
+	return currentContest.Problemset;
 }
 
 func IsStarted() bool {
@@ -53,10 +38,45 @@ func Activate() {
 	isActive = true;
 }
 
+func Deactivate() {
+	isActive = false;
+}
+
 func GetContest() Contest {
 	return currentContest;
 }
 
 func IsContestActive() bool {
 	return isActive;
+}
+
+func SaveContest() {
+	file, err := json.MarshalIndent(currentContest, "", " ");
+
+	if err != nil {
+		log.Printf("[Contest] Failed to marshal contest data: %s\n", err.Error());
+		return;
+	}
+
+	err = ioutil.WriteFile("contest.json", file, 0644)
+
+	if err != nil {
+		log.Printf("[Contest] Failed to write contest data: %s\n", err.Error());
+	}
+}
+
+func LoadContest() {
+	file, err := ioutil.ReadFile("contest.json");
+ 
+	if err != nil {
+		log.Printf("[Contest] Didn't load contest data: %s\n", err.Error());
+		return;
+	}
+ 
+	err = json.Unmarshal([]byte(file), &currentContest);
+
+	if err != nil {
+		log.Printf("[Contest] Didn't load JSON contest data: %s\n", err.Error());
+		return;
+	}
 }
