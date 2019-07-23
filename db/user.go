@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"log"
 )
 
 type User struct {
@@ -26,6 +27,7 @@ func CreateUser(user User) bool {
 	_, err := Maindb.Exec(createSql, user.Username, user.Fullname, user.Password, user.Access);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to create user: %s\n", err.Error());
 		return false
 	}
 
@@ -46,6 +48,7 @@ func FindAuthUser(username string, password string) (User, error) {
 	err := row.Scan(&user.Id, &user.Username, &user.Fullname, &user.Password, &user.Access);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to find user for auth: %s\n", err.Error());
 		return user, errors.New("Database query failed.");
  }
 
@@ -64,6 +67,7 @@ func GetUser(id int) (User, error) {
 	err := row.Scan(&user.Id, &user.Username, &user.Fullname, &user.Password, &user.Access);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to get user #%d: %s\n", id, err.Error());
 		return user, errors.New("Database query failed.");
  }
 
@@ -80,6 +84,7 @@ func GetAllUsers() ([]User, error) {
 	rows, err := Maindb.Query(getAllSql);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to fetch users: %s\n", err.Error());
 		return list, errors.New("Database query failed.");
 	}
 
@@ -105,6 +110,7 @@ func DeleteUser(user_id int) bool {
 	_, err := Maindb.Exec(deleteSql, user_id);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to delete user #%d: %s\n", user_id, err.Error());
 		return false
 	}
 

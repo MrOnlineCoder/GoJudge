@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 	"strconv"
+	"log"
 )
 
 type Problem struct {
@@ -29,6 +30,7 @@ func CreateProblem(p Problem) bool {
 	_, err := Maindb.Exec(createSql, p.Name, p.Timelimit, p.Memlimit, p.Text);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to create problem: %s\n", err.Error());
 		return false
 	}
 
@@ -45,6 +47,7 @@ func GetAllProblems() ([]Problem, error) {
 	rows, err := Maindb.Query(getAllSql);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to get list of all problem: %s\n", err.Error());
 		return list, errors.New("Database query failed.");
 	}
 
@@ -61,7 +64,7 @@ func GetAllProblems() ([]Problem, error) {
 
 	return list, nil
 }
-
+/*
 func GetProblemset(arr []int) ([]Problem, error) {
 	const getAllSql = `
 		SELECT * FROM "problems" WHERE "id" IN (%s)
@@ -81,6 +84,7 @@ func GetProblemset(arr []int) ([]Problem, error) {
 	rows, err := Maindb.Query(builtQuery);
 
 	if err != nil {
+		log.Printf("[DB] Failed to create problem: %s\n", err.Error());
 		return list, errors.New("Database query failed.");
 	}
 
@@ -97,7 +101,7 @@ func GetProblemset(arr []int) ([]Problem, error) {
 	rows.Close()
 
 	return list, nil
-}
+}*/
 
 func GetProblem(id int) (Problem, error) {
 	const getProblemSql = `
@@ -111,6 +115,7 @@ func GetProblem(id int) (Problem, error) {
 	err := row.Scan(&problem.Id, &problem.Name, &problem.Timelimit, &problem.Memlimit, &problem.Text);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to get problem #%d: %s\n", id, err.Error());
 		return problem, errors.New("Database query failed.");
  }
 
@@ -131,6 +136,7 @@ func UpdateProblem(p Problem) bool {
 	_, err := Maindb.Exec(updateSql, p.Name, p.Timelimit, p.Memlimit, p.Text, p.Id);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to update problem: %s\n", err.Error());
 		return false
 	}
 
@@ -145,6 +151,7 @@ func DeleteProblem(problem_id int) bool {
 	_, err := Maindb.Exec(deleteSql, problem_id);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to delete problem: #%d: %s\n", problem_id, err.Error());
 		return false
 	}
 

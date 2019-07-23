@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"log"
 )
 
 type Submission struct {
@@ -40,6 +41,7 @@ func CreateSubmission(s Submission) (int, error) {
 	);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to create submission: %s\n", err.Error());
 		return -1, err
 	}
 
@@ -62,6 +64,7 @@ func GetUserSubmissions(user_id int) ([]Submission, error) {
 	rows, err := Maindb.Query(getForUserSql, user_id);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to get user (%d) submissions: %s\n", user_id, err.Error());
 		return list, errors.New("Database query failed.");
 	}
 
@@ -103,6 +106,7 @@ func SetSubmissionVerdict(id int, v string, tests int) bool {
 	);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to set submission (#%d) verdict to %s: %s\n", id, v, err.Error());
 		return false
 	}
 

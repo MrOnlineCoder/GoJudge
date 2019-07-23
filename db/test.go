@@ -33,7 +33,7 @@ func CreateTest(t Test) bool {
 	_, err := Maindb.Exec(createSql, t.ProblemId, t.Index, t.CheckMethod, t.CheckerId, t.IsSample, t.Input, t.Output);
 
 	if err != nil {
-		log.Println(err);
+		log.Printf("[DB] ERROR: Failed to create test: %s\n", err.Error());
 		return false
 	}
 
@@ -50,6 +50,7 @@ func GetTestsForProblem(problem_id int) ([]Test, error) {
 	rows, err := Maindb.Query(getAllSql, problem_id);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to fetch tests for problem #%d: %s\n", problem_id, err.Error());
 		return list, errors.New("Database query failed.");
 	}
 
@@ -85,6 +86,7 @@ func GetSamplesForProblem(problem_id int) ([]Test, error) {
 	rows, err := Maindb.Query(getAllSql, problem_id);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to get samples for problem #%d: %s\n", problem_id, err.Error());
 		return list, errors.New("Database query failed.");
 	}
 
@@ -110,25 +112,6 @@ func GetSamplesForProblem(problem_id int) ([]Test, error) {
 	return list, nil
 }
 
-/*
-func GetProblem(id int) (Problem, error) {
-	const getProblemSql = `
-		SELECT * FROM "problems" WHERE "id" = $1
-	`;
-
-	row := Maindb.QueryRow(getProblemSql, id);
-
-	problem := Problem{};
-
-	err := row.Scan(&problem.Id, &problem.Name, &problem.Timelimit, &problem.Memlimit, &problem.Text);
-
-	if err != nil {
-		return problem, errors.New("Database query failed.");
- }
-
- return problem, nil
-}
-*/
 func UpdateTest(t Test) bool {
 	const updateSql = `
 		UPDATE "tests" SET
@@ -155,7 +138,7 @@ func UpdateTest(t Test) bool {
 	);
 
 	if err != nil {
-		log.Println(err)
+		log.Printf("[DB] ERROR: Failed to update test: %s\n", err.Error());
 		return false
 	}
 
@@ -171,6 +154,7 @@ func DeleteTest(tid int) bool {
 	_, err := Maindb.Exec(deleteSql, tid);
 
 	if err != nil {
+		log.Printf("[DB] ERROR: Failed to remove test #%d: %s\n", tid, err.Error());
 		return false
 	}
 
