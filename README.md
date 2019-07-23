@@ -65,7 +65,7 @@ Please note, not all features are well-tested and ready to use.
 * Easy to use client interface built in Vue and Bootstrap
 * Supports different methods for checking participants' solutions
 * Runs submissions in a safe cross-platform sandbox environment
-* Cross-platform: can run both on Windows and Linux!
+* Cross-platform: can run both on Windows and Linux
 
 ### TODO
 
@@ -78,6 +78,9 @@ Please note, not all features are well-tested and ready to use.
 * Token based checking
 * Checking using external checker program
 * Configuration files
+* Test on Linux
+* Write sandbox runner for Linux
+* Improve Windows sandbox by using access tokens
 
 ### Architecture
 
@@ -87,6 +90,24 @@ Please note, not all features are well-tested and ready to use.
 * **Judging system**: serveral worker [goroutines](https://tour.golang.org/concurrency/1), which receive incoming submission via channels
 
 More on judging: GoJudge starts several worker goroutines (usually the number of workers equal the number of CPU cores on the machine). Each worker awaits for incoming submission and when one is avaliable, starts judging it. All commands are executed with [os.Exec](https://golang.org/pkg/os/exec/). Firstly, submission source code is written to a file in sandbox folder. Then, compiler is called to compile the submission. After that, compiled submission is ran through a set of tests, running via `sandbox_runner` each test. Final verdict is written to the database and source code and executable files for submission get deleted from sandbox folder.
+
+## Sandbox Security
+
+All submissions executables are executed by `sandbox_runner`.
+
+Sandbox Runner must do next things:
+
+* Accept 3 arguments: `path to exe` `timelimit, in ms` `memory limit, in KB`
+* Redirect own stdin/stdout to submission stdin/stdout
+* Handle time limit: if programs runs longer than allowed, terminate it and return TIME_LIMIT_EXCEEDED verdict
+* Handle memory limit
+* Handle runtime error of the target executable
+* **Restrict program as much as possible - ideally allow it only to read stdin and write to stdout.** 
+* If everything went OK, executable's stdout contents must be present in `sandbox_runner` stdout, runner must exit with code 0 (zero)
+* If there was an internal error in `sandbox_runner` itself (i.e. syscall for executing submission executable failed), return verdict FAIL
+* If any program limit was exceeded, return TIME_LIMIT_EXCEEDED or MEMORY_LIMIT_EXCEEDED respectively
+* If there was a runtime error in target program, return RUNTIME_ERROR verdict
+* Returning verdict means printing it in stderr and exiting with non-zero code (usually 1)
 
 ### License
 MIT (see LICENSE file)

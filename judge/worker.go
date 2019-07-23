@@ -30,6 +30,8 @@ func JudgeWorker(worker_id int, judgements chan *Judgement, results chan JudgeRe
     	continue;
     }
 
+    results <- MakeResult(j, VERDICT_CHECKING);
+
     testResult := j.RunTests();
 
     results <- testResult;
