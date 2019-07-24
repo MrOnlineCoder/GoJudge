@@ -23,11 +23,12 @@ func GetProblemset() []db.Problem {
 	return currentContest.Problemset;
 }
 
-func IsStarted() bool {
+func IsRunning() bool {
 	now := time.Now().Unix()*1000;
 	start := currentContest.StartTime;
+	end := currentContest.EndTime;
 
-	return now > start;
+	return now > start && now < end;
 }
 
 func SetContest(c Contest) {

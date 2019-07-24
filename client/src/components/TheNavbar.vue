@@ -20,7 +20,7 @@
           Scoreboard
         </b-nav-item>
          <b-nav-item to="/submissions">
-          <font-awesome-icon icon="check-double"/>
+          <font-awesome-icon icon="paper-plane"/>
           Submissions
         </b-nav-item>
         <b-nav-item to="/jury" v-if="user.access >= 1">

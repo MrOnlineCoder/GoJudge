@@ -53,7 +53,7 @@ func ContestProblemsetHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
-	if !IsStarted() {
+	if !IsRunning() {
 		utils.SendSuccess(w, map[string]interface{} {
 			"active": true,
 			"not_started": true,
@@ -75,7 +75,7 @@ func ContestProblemHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
-	if !IsStarted() {
+	if !IsRunning() {
 		utils.SendSuccess(w, map[string]interface{} {
 			"active": true,
 			"not_started": true,
@@ -113,7 +113,7 @@ func ContestProblemExamplesHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
-	if !IsStarted() {
+	if !IsRunning() {
 		utils.SendSuccess(w, map[string]interface{} {
 			"active": true,
 			"not_started": true,
@@ -167,7 +167,7 @@ func ContestSubmitHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
-	if !IsStarted() {
+	if !IsRunning() {
 		utils.SendError(w, "Contest not started.");
 		return;
 	}
