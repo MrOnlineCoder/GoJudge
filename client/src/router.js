@@ -8,6 +8,7 @@ import Login from '@/views/Login.vue'
 import Admin from '@/views/Admin.vue'
 import Problem from '@/views/Problem.vue'
 import Submit from '@/views/Submit.vue'
+import Settings from '@/views/Settings.vue'
 
 Vue.use(Router)
 
@@ -52,6 +53,11 @@ export default new Router({
       path: '/admin',
       name: 'admin',
       component: Admin
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: Settings
     },
     {
       path: '*',

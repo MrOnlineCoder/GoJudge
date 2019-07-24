@@ -102,6 +102,21 @@ func GetAllUsers() ([]User, error) {
 	return list, nil
 }
 
+func UpdateUserPassword(user_id int, pass string) bool {
+	const updateSql = `
+		UPDATE "users" SET "password" = $1 WHERE "id" = $2
+	`;
+
+	_, err := Maindb.Exec(updateSql, pass, user_id);
+
+	if err != nil {
+		log.Printf("[DB] ERROR: Failed to update user #%d password: %s\n", user_id, err.Error());
+		return false
+	}
+
+	return true
+}
+
 func DeleteUser(user_id int) bool {
 	const deleteSql = `
 		DELETE FROM "users" WHERE "id" = $1

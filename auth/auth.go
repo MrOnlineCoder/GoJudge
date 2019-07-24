@@ -33,6 +33,11 @@ type LoginData struct {
 	Password string `json:"password"`
 }
 
+type ChangePasswordBody struct {
+	OldPassword string `json:"old_password"`
+	NewPasword string `json:"new_password"`
+}
+
 func HashPassword(raw string) string {
 	hash := sha512.New()
   hash.Write([]byte(raw))
@@ -184,8 +189,42 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	utils.SendSuccess(w, map[string]interface{}{})
 }
 
+func changePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := ValidateAccess(r, ACCESS_NONE);
+
+	if err != nil {
+		clearTokenCookie(w);
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	changeBody := &ChangePasswordBody{};
+	err = json.NewDecoder(r.Body).Decode(changeBody);
+
+	if err != nil {
+		utils.SendError(w, "Invalid request data.")
+		return
+	}
+
+	oldInHash := HashPassword(changeBody.OldPassword)
+	newInHash := HashPassword(changeBody.NewPasword)
+
+	if user.Password != oldInHash {
+		utils.SendError(w, "Wrong password.")
+		return
+	}
+
+	if !db.UpdateUserPassword(user.Id, newInHash) {
+		utils.SendError(w, "Database write error.")
+		return;
+	}
+
+	utils.SendSuccess(w, map[string]interface{}{})
+}
+
 func InitAuthAPI(router *mux.Router) {
 	router.HandleFunc("/login", loginHandler).Methods("POST");
 	router.HandleFunc("/logout", logoutHandler).Methods("POST");
+	router.HandleFunc("/changePassword", changePasswordHandler).Methods("POST");
 	router.HandleFunc("/me", meHandler);
 }
