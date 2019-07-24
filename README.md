@@ -73,7 +73,7 @@ Please note, not all features are well-tested and ready to use.
 * Scoreboard
 * Handle contest end and results
 * Jury user interface
-* Realtime submission status update via Socket.io
+* ~~Realtime submission status update via WebSockets~~
 * Clarifications
 * Token based checking
 * Checking using external checker program

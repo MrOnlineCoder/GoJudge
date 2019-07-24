@@ -23,7 +23,7 @@ const (
 
 const (
 	CHECK_STRICT = 0
-	CHECK_TOKEN = 1
+	CHECK_WHITESPACE_STRICT = 1
 	CHECK_BY_CHECKER = 2
 )
 
@@ -60,7 +60,7 @@ func MakeResult(jd *Judgement, verdict string) JudgeResult {
 func ResultsWatch() {
 	for r := range resultsChan {
 		db.SetSubmissionVerdict(r.SubmissionId, r.Verdict, r.PassedTests);
-		realtime.EmitSubmissionUpdate(r.SubmissionId, r.Verdict, r.PassedTests);
+		realtime.EmitSubmissionUpdate(r.SubmissionId, r.Verdict, r.PassedTests); 
 	}
 }
 

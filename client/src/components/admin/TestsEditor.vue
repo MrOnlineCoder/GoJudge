@@ -80,14 +80,14 @@
 
 	      <b-form-group label="Checking method:">
 	        <b-form-radio-group v-model="testData.check_method" stacked>
-	        	<b-form-radio v-for="v,k in check_methods" :key="k" :value="k">{{v}}</b-form-radio>
+	        	<b-form-radio v-for="m,idx in check_methods" :key="idx" :value="idx">{{m}}</b-form-radio>
 	        </b-form-radio-group>
 	        <kbd>Checking method description:</kbd>
 	        <p v-if="testData.check_method === 0">
-	        	Jury's output and participant's solution output will be compared byte-by-byte, character-by-character. This method can be used when there is only one (usually short) single solution to a problem. Please note, that despite of being called strict, whitespace and newline characters at the end of the output are trimmed.
+	        	Jury's output and participant's solution output will be compared byte-by-byte, character-by-character. This method can be used when there is only one (usually short) single solution to a problem. <b>Please note,</b> that despite of being called strict, whitespace and newline characters at the end of the output are trimmed.
 	        </p>
 	        <p v-if="testData.check_method === 1">
-	        	Jury's output and participant's solution output will be split into <b>tokens</b> and the outputs will be compared token-by-token. This method of checking can be used when there is also only one solution to the problem, but can have complicated output. This way of checking ignores any whitespace or newline characters, allowing participants to present their answer in different ways.
+	        	Jury's output and participant's solution output will be compared byte-by-byte, character-by-character, but before comparison, all newlines and tabs will be replaced into spaces in jury's output and participant's output, and trailing whitespace characters will be trimmed. This method of checking does not suit all possible tasks, but can be used for loyal presentation comparison.
 	        </p>
 	        <p v-if="testData.check_method === 2">
 	        	External program called <b>checker</b> is called for checking participant's answer. Use this method of checking for complex solutions, with multiple answers and complex output. 
@@ -146,11 +146,11 @@ export default {
 				output: null
 			},
 			isEditing: false,
-			check_methods: {
-				0: 'Strict comparison',
-				1: 'Token comparison',
-				2: 'Checker program'
-			}
+			check_methods: [
+				'Strict comparison',
+				'Strict comparison, ignore whitespace',
+				'Checker program'
+			]
 		}
 	},
 	methods: {

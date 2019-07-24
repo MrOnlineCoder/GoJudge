@@ -8,6 +8,7 @@ import (
   "crypto/sha256"
   "encoding/hex"
   "runtime"
+  "log"
 
   "gojudge/db"
 )
@@ -89,10 +90,17 @@ func runSingleTest(jd *Judgement, test *db.Test) string {
 
 	var verdict string;
 
-	if test.CheckMethod == CHECK_STRICT {
-		verdict = RunStrictCheck(test.Input, test.Output, output);
-	} else {
-		verdict = VERDICT_ERROR_FAIL;
+
+	switch test.CheckMethod {
+		case CHECK_STRICT:
+			verdict = RunStrictCheck(test.Input, test.Output, output);
+		case CHECK_WHITESPACE_STRICT:
+			verdict = RunWhitespaceCheck(test.Input, test.Output, output);
+		case CHECK_BY_CHECKER:
+			verdict = VERDICT_ERROR_FAIL;
+		default:
+			log.Printf("[Judge] Test #%d has invalid checking method: %d", test.Id, test.CheckMethod);
+			verdict = VERDICT_ERROR_FAIL;
 	}
 
 	return verdict;
