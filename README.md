@@ -77,10 +77,11 @@ Please note, not all features are well-tested and ready to use.
 * Clarifications
 * Token based checking
 * Checking using external checker program
-* Configuration files
+* ~~Configuration files~~
 * Test on Linux
 * Write sandbox runner for Linux
 * Improve Windows sandbox by using access tokens
+* Testing protocol
 
 ### Architecture
 

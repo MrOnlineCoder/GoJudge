@@ -7,6 +7,7 @@ import (
 	"gojudge/admin/problems"
 	"gojudge/admin/tests"
 	"gojudge/admin/contest"
+	"gojudge/admin/config"
 )
 
 func InitAdminAPI(router *mux.Router) {
@@ -26,4 +27,7 @@ func InitAdminAPI(router *mux.Router) {
 	router.HandleFunc("/contest/setActive", contest.ActivateContestHandler).Methods("POST");
 	router.HandleFunc("/contest/load", contest.LoadContestHandler).Methods("GET");
 	router.HandleFunc("/contest/save", contest.SaveContestHandler).Methods("POST");
+	
+	router.HandleFunc("/config", config.GetConfigHandler).Methods("GET");
+	router.HandleFunc("/config/save", config.SaveConfigHandler).Methods("POST");
 }

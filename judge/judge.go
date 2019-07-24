@@ -1,6 +1,7 @@
 package judge
 
 import (
+	"gojudge/config"
 	"gojudge/db"
 	"gojudge/realtime"
 	"runtime"
@@ -41,6 +42,10 @@ func StartWorkers() {
 	judgementsChan = make(chan *Judgement)
 
 	numWorkers := runtime.NumCPU();
+
+	if config.Get().Server.MaxWorkers > 0 {
+		numWorkers = config.Get().Server.MaxWorkers;
+	}
 
 	for w := 1; w <= numWorkers; w++ {
     go JudgeWorker(w, judgementsChan, resultsChan)

@@ -3,6 +3,8 @@ package db
 import (
 	"errors"
 	"log"
+	"strings"
+	"fmt"
 )
 
 type Problem struct {
@@ -61,44 +63,37 @@ func GetAllProblems() ([]Problem, error) {
 
 	return list, nil
 }
-/*
-func GetProblemset(arr []int) ([]Problem, error) {
+
+func GetProblemNames(ids []string) ([]Problem, error) {
 	const getAllSql = `
-		SELECT * FROM "problems" WHERE "id" IN (%s)
+		SELECT "id", "name" FROM "problems" WHERE "id" IN (%s)
 	`;
 
 	list := []Problem{}
-
-	//We receive array of ints
-	//To build SQL query, we have to transform it to []string
-	var ids []string
-	for _, i := range arr {
-	    ids = append(ids, strconv.Itoa(i))
-	}
 
 	builtQuery := fmt.Sprintf(getAllSql, strings.Join(ids, ", "));
 
 	rows, err := Maindb.Query(builtQuery);
 
 	if err != nil {
-		log.Printf("[DB] Failed to create problem: %s\n", err.Error());
+		log.Printf("[DB] Failed to get problemnames: %s\n", err.Error());
 		return list, errors.New("Database query failed.");
 	}
 
 	for rows.Next() {
     p := Problem{}
-    err := rows.Scan(&p.Id, &p.Name, &p.Timelimit, &p.Memlimit, &p.Text)
+    err := rows.Scan(&p.Id, &p.Name)
     if err != nil {
       continue
     }
-    fmt.Println("id #", p.Id)
+
     list = append(list, p)
   }
 
 	rows.Close()
 
 	return list, nil
-}*/
+}
 
 func GetProblem(id int) (Problem, error) {
 	const getProblemSql = `

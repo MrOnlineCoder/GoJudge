@@ -16,10 +16,25 @@ import (
 	"gojudge/db"
 	"gojudge/judge"
 	"gojudge/contest"
+	"gojudge/config"
 )
 
 func main() {
 	log.Println("=== [GoJudge] ===");	
+	log.Println("[Main] Loading config...");
+
+	if !config.IsPresent() {
+		config.SetDefault();
+		config.Save();
+
+		log.Println("[Main] ------------------------------------------------------------------- ");
+		log.Println("[Main] Default config has been set.");
+		log.Println("[Main] Please, configure your GoJudge installation via admin user-interface");
+		log.Println("[Main] ------------------------------------------------------------------- ");
+	} else {
+		config.Load();
+	}
+
 	log.Println("[Main] Loading database...");
 
 	if !db.Initialize() {

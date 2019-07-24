@@ -25,6 +25,10 @@ type ContestExample struct {
 	Output string `json:"output"`
 }
 
+type ContestProblemNamesBody struct {
+	Ids []string `json:"problem_ids"`
+}
+
 func ContestStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if !IsContestActive() {
 		utils.SendSuccess(w, map[string]interface{} {
@@ -239,11 +243,42 @@ func ContestSubmissionsHandler(w http.ResponseWriter, r *http.Request) {
 	});
 }
 
+func ContestProblemNamesHandler(w http.ResponseWriter, r *http.Request) {
+	_, err := auth.ValidateAccess(r, auth.ACCESS_PARTICIPANT);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	parsedBody := &ContestProblemNamesBody{};
+
+	err = json.NewDecoder(r.Body).Decode(parsedBody);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	names, err := db.GetProblemNames(parsedBody.Ids);
+
+	if err != nil {
+		utils.SendError(w, err.Error());
+		return;
+	}
+
+	utils.SendSuccess(w, map[string]interface{} {
+		"problems": names,
+	});
+}
+
 func InitContestAPI(router *mux.Router) {
 	router.HandleFunc("/status", ContestStatusHandler).Methods("GET");
 	router.HandleFunc("/problemset", ContestProblemsetHandler).Methods("GET");
 	router.HandleFunc("/problemset/{index}", ContestProblemHandler).Methods("GET");
 	router.HandleFunc("/problemset/{index}/examples", ContestProblemExamplesHandler).Methods("GET");
+	
+	router.HandleFunc("/problemNames", ContestProblemNamesHandler).Methods("POST");
 	
 	router.HandleFunc("/submit", ContestSubmitHandler).Methods("POST");
 	router.HandleFunc("/submissions", ContestSubmissionsHandler).Methods("GET");

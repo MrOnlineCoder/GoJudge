@@ -3,8 +3,8 @@
 		<h1>Admin</h1>
 		<hr>
 		<b-tabs content-class="mt-3">
-	    <b-tab title="General" active>
-	    	
+	    <b-tab title="Configuration" active>
+	    	<Configuration />
 	    </b-tab>
 	    <b-tab title="Contest">
 	    	<ContestEditor />
@@ -27,6 +27,7 @@ import UsersEditor from '@/components/admin/UsersEditor.vue'
 import ProblemsEditor from '@/components/admin/ProblemsEditor.vue'
 import TestsEditor from '@/components/admin/TestsEditor.vue'
 import ContestEditor from '@/components/admin/ContestEditor.vue'
+import Configuration from '@/components/admin/Configuration.vue'
 
 export default {
 		data() {
@@ -46,7 +47,8 @@ export default {
 			UsersEditor,
 			TestsEditor,
 			ProblemsEditor,
-			ContestEditor
+			ContestEditor,
+			Configuration
 		}
 	}
 </script>

@@ -6,3 +6,4 @@ client/dist
 sandbox
 *.exe
 contest.json
+config.json

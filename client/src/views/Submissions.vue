@@ -19,7 +19,7 @@
 				<tbody>
 					<tr v-for="s in submissions">
 						<td>{{ s.id }}</td>
-						<td>{{ s.problem_name }}</td>
+						<td>{{ problemsMap[s.problem_id].name }}</td>
 						<td>{{ s.time | formatDatetime	}}</td>
 						<td>{{ s.lang }}</td>
 						<td :class="getVerdictClass(s.verdict)">
@@ -44,23 +44,28 @@ export default {
 		return {
 			submissions: [],
 			problemset: [],
+			problemsMap: {},
 			error: null,
 			busy: true,
 			shortnames: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
 		}
 	},
 	methods: {
-		setNames() {
-			this.submissions.forEach((sub, index) => {
-				let problem = this.problemset.find(p => p.id === sub.problem_id);
-
-				if (problem) {
-					this.$set(this.submissions[index], 'problem_name', problem.name);
-				}
+		buildProblemsMap(problemset) {
+			problemset.forEach((problem, index) => {
+				this.$set(this.problemsMap, problem.id, problem);
 			});
 		},
 		fetchProblemset() {
-			axios.get('/api/contest/problemset').then(response => {
+			let ids = {};
+
+			this.submissions.forEach((sub) => {
+				ids[sub.problem_id] = true;
+			});
+
+			axios.post('/api/contest/problemNames', {
+				problem_ids: Object.keys(ids)
+			}).then(response => {
   			this.busy = false;
 
         if (!response.data.success) {
@@ -68,8 +73,7 @@ export default {
   				return;
   			}
 
-  			this.problemset = response.data.problemset;
-  			this.setNames();
+  			this.buildProblemsMap(response.data.problems);
   		}).catch(error => {
   			this.error = error;
   			this.busy = false;
