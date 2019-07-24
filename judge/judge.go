@@ -2,6 +2,7 @@ package judge
 
 import (
 	"gojudge/db"
+	"gojudge/realtime"
 	"runtime"
 )
 
@@ -59,6 +60,7 @@ func MakeResult(jd *Judgement, verdict string) JudgeResult {
 func ResultsWatch() {
 	for r := range resultsChan {
 		db.SetSubmissionVerdict(r.SubmissionId, r.Verdict, r.PassedTests);
+		realtime.EmitSubmissionUpdate(r.SubmissionId, r.Verdict, r.PassedTests);
 	}
 }
 

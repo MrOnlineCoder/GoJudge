@@ -37,6 +37,8 @@
 <script>
 import axios from 'axios'
 
+import Realtime from '@/services/realtime'
+
 export default {
 	data() {
 		return {
@@ -105,9 +107,21 @@ export default {
 			};
 
 			return Verdicts[v];
+		},
+		handleSubmissionUpdate(id, verdict, tests) {
+			this.submissions.forEach((item, index) => {
+				if (item.id === id) {
+					this.$set(this.submissions[index], 'verdict', verdict);
+					this.$set(this.submissions[index], 'passed_tests', tests);
+					return;
+				}
+			});
 		}
 	},
 	mounted() {
+		Realtime.init({
+			onSubmissionUpdate: this.handleSubmissionUpdate
+		});
 		this.fetchSubmissions();
 	}
 }

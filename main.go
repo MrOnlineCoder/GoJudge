@@ -20,7 +20,7 @@ import (
 
 func main() {
 	log.Println("=== [GoJudge] ===");	
-	log.Println("[Main] Loading database....");
+	log.Println("[Main] Loading database...");
 
 	if !db.Initialize() {
 		log.Fatal("ERROR: couldn't initialize database.")
