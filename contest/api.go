@@ -97,7 +97,7 @@ func ContestProblemHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
-	problem := GetProblemset()[problemIndex];
+	problem := GetProblemset()[problemIndex].Problem;
 
 	utils.SendSuccess(w, map[string]interface{} {
 		"active": true,
@@ -135,7 +135,7 @@ func ContestProblemExamplesHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
-	problem := GetProblemset()[problemIndex];
+	problem := GetProblemset()[problemIndex].Problem;
 
 	tests, err := db.GetSamplesForProblem(problem.Id);
 
@@ -190,7 +190,7 @@ func ContestSubmitHandler(w http.ResponseWriter, r *http.Request) {
 		return;
 	}
 
-	problem := problemset[body.ProblemIndex];
+	problem := problemset[body.ProblemIndex].Problem;
 
 	tests, err := db.GetTestsForProblem(problem.Id);
 
@@ -219,6 +219,8 @@ func ContestSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	sub.Id = subId;
 
 	judge.ProcessSubmission(&problem, &sub, tests);
+
+	GetScoreboard().ProcessSubmissionVerdict(user.Id, problem.Id, "OK", 6, 6);
 
 	utils.SendSuccess(w, map[string]interface{} {});
 }
@@ -272,6 +274,22 @@ func ContestProblemNamesHandler(w http.ResponseWriter, r *http.Request) {
 	});
 }
 
+func ContestScoreboardHandler(w http.ResponseWriter, r *http.Request) {
+	if !IsContestActive() {
+		utils.SendError(w, "Contest not active.");
+		return;
+	}
+
+	if !IsRunning() {
+		utils.SendError(w, "Contest not started.");
+		return;
+	}
+
+	utils.SendSuccess(w, map[string]interface{} {
+		"scoreboard": GetScoreboard().GetRows(),
+	});
+}
+
 func InitContestAPI(router *mux.Router) {
 	router.HandleFunc("/status", ContestStatusHandler).Methods("GET");
 	router.HandleFunc("/problemset", ContestProblemsetHandler).Methods("GET");
@@ -282,4 +300,6 @@ func InitContestAPI(router *mux.Router) {
 	
 	router.HandleFunc("/submit", ContestSubmitHandler).Methods("POST");
 	router.HandleFunc("/submissions", ContestSubmissionsHandler).Methods("GET");
+	
+	router.HandleFunc("/scoreboard", ContestScoreboardHandler).Methods("GET");
 }

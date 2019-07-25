@@ -58,6 +58,8 @@ func ActivateContestHandler(w http.ResponseWriter, r *http.Request) {
 
 	if parsedBody.Active {
 		contest.Activate();
+
+		contest.GetScoreboard().Init(contest.GetProblemset(), contest.GetContest().StartTime, 20)
 	} else {
 		contest.Deactivate();
 	}

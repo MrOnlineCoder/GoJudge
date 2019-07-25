@@ -16,23 +16,25 @@
       Contest has not started yet, please wait.
     </b-alert>
     <div v-if="!busy && contestActive && contestStarted">
-      <div class="problemset-container" v-for="p,idx in problemset" > 
-        <b-card  
-          :title="`${shortnames[idx]} - ${p.name}`">
-          <hr>
+      <div class="problemset-container" v-for="item,idx in problemset" > 
+        <b-card>
+          <template slot="header">
+            {{ idx | problemShortname }} - {{ item.problem.name}}
+            <b-badge>{{ item.points }} points</b-badge>
+          </template>
           <p>
             <font-awesome-icon icon="stopwatch"/> Time limit:
-            <b>{{ p.timelimit | formatTimelimit }}</b> 
+            <b>{{ item.problem.timelimit | formatTimelimit }}</b> 
           </p>
           <p>
             <font-awesome-icon icon="database"/> Memory limit:
-            <b>{{ p.memlimit | formatMemlimit }}</b> 
+            <b>{{ item.problem.memlimit | formatMemlimit }}</b> 
           </p>
           <hr>
           <router-link :to="'/problem/'+idx">
             <b-button variant="primary">
               <font-awesome-icon icon="file"/>
-              View problem {{shortnames[idx]}}
+              View problem {{idx | problemShortname}}
             </b-button>
           </router-link> 
 
@@ -60,8 +62,7 @@ export default {
   		problemset: [],
   		contestActive: false,
       contestStarted: true,
-  		error: null,
-      shortnames: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  		error: null
   	}
   },
   methods: {

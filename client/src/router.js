@@ -9,6 +9,7 @@ import Admin from '@/views/Admin.vue'
 import Problem from '@/views/Problem.vue'
 import Submit from '@/views/Submit.vue'
 import Settings from '@/views/Settings.vue'
+import Scoreboard from '@/views/Scoreboard.vue'
 
 Vue.use(Router)
 
@@ -58,6 +59,11 @@ export default new Router({
       path: '/settings',
       name: 'settings',
       component: Settings
+    },
+    {
+      path: '/scoreboard',
+      name: 'scoreboard',
+      component: Scoreboard
     },
     {
       path: '*',

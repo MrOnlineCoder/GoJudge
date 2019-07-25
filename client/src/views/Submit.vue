@@ -7,8 +7,8 @@
 			<b-form-group label="Problem:">
 				<b-form-select v-model="submitData.problem_index" required>
 					<option :value="null" disabled="">-- Choose a problem ---</option>
-					<option v-for="p,idx in problemset" :key="p.id" :value="idx">
-						{{ `${shortnames[idx]} - ${p.name}` }}
+					<option v-for="p,idx in problemset" :key="p.problem.id" :value="idx">
+						{{ idx | problemShortname }} - {{ p.problem.name }}
 					</option>
 				</b-form-select>
 			</b-form-group>
@@ -47,8 +47,7 @@ export default {
 			},
 			problemset: [],
 			busy: true,
-			error: null,
-			shortnames: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+			error: null
 		}
 	},
 	methods: {

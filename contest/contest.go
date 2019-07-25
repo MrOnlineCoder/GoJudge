@@ -9,17 +9,28 @@ import (
 	"gojudge/db"
 )
 
+const (
+	CONTEST_MODE_TIME = "time"
+	CONTEST_MODE_TESTS = "tests"
+)
+
+type ContestProblem struct {
+	Problem db.Problem `json:"problem"`
+	Points int `json:"points"`
+}
+
 type Contest struct {
 	Name string `json:"name"`
 	StartTime int64 `json:"start_time"`
 	EndTime int64 `json:"end_time"`
-	Problemset []db.Problem `json:"problemset"`
+	Mode string `json:"mode"`
+	Problemset []ContestProblem `json:"problemset"`
 }
 
 var currentContest Contest
 var isActive bool
 
-func GetProblemset() []db.Problem {
+func GetProblemset() []ContestProblem {
 	return currentContest.Problemset;
 }
 

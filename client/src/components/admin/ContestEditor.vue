@@ -59,6 +59,20 @@
 				    <b-button @click="setEndTimePreset(5, 0)">End in 5 hours after start</b-button>
 				  </b-button-group>
 	      </b-form-group>
+	      <b-form-group label="Mode:">
+	      	<b-form-radio-group v-model="contest.mode">
+	      		<b-form-radio value="time">Time based ranking (ACM ICPC)</b-form-radio>
+	      		<b-form-radio value="tests">Test based ranking (allows Partial Solutions)</b-form-radio>
+	      		<p v-if="contest.mode === 'time'">
+	      			ACM ICPC-based ranking. Scoreboard is filtered by amount of solved problems by a participant. If the amount of solved tasks is equal, sorting by penalty time is used. Each successfully solved problem by a participant recevies penalty time, which equals the time since the contest start. Each failed submission also increases the penalty time by 20 minutes. 
+
+	      			Submission is run through tests until it passes all tests or until the first failed test.
+	      		</p>
+	      		<p v-if="contest.mode === 'tests'">
+	      			Each submission is tested against all test cases. If the solution passed all tests, user receives maximum points for a given problem. However, if solution failed to pass some tests, submission receives status Partial Solution and participant gets points based on amount of passed tests. 
+	      		</p>
+	      	</b-form-radio-group>
+	      </b-form-group>
 	      <b-form-group label="Problemset:">
 	      	<b-button variant="success" @click="openAddProblemModal()">
 						<font-awesome-icon icon="plus"/>
@@ -71,13 +85,17 @@
 	      			<th>Problem ID</th>
 	      			<th>Shortname</th>
 		      		<th>Name</th>
+		      		<th>Points</th>
 		      		<th>Delete</th>
 	      		</thead>
 	      		<tbody>
-	      			<tr v-for="problem,idx in contest.problemset">
-	      				<td>{{ problem.id }}</td>
-	      				<td>{{ shortnames[idx] }} </td>
-	      				<td>{{ problem.name }}</td>
+	      			<tr v-for="item,idx in contest.problemset">
+	      				<td>{{ item.problem.id }}</td>
+	      				<td>{{ idx | problemShortname }} </td>
+	      				<td>{{ item.problem.name }}</td>
+	      				<td>
+	      					<b-form-input v-model.number="item.points"/>
+	      				</td>
 	      				<td>
 	      				<b-button variant="danger" @click="contest.problemset.splice(idx, 1)">
 									<font-awesome-icon icon="trash"/>
@@ -150,12 +168,12 @@ export default {
 				name: null,
 				start_time: null,
 				end_time: null,
+				mode: 'time',
 				problemset: []
 			},
 			problems: [],
 			addSearch: null,
 			error: null,
-			shortnames: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
 		}
 	},
 	methods: {
@@ -164,7 +182,10 @@ export default {
 		},
 		selectProblem(p) {
 			this.$refs.addProblemModal.hide();
-			this.contest.problemset.push(p);
+			this.contest.problemset.push({
+				problem: p,
+				points: 0
+			});
 		},
 		setStartTimePreset(hours, mins) {
 			this.contest.start_time = moment().add(hours,'hours').add(mins, 'minutes').format('DD.MM.YYYY HH:mm:ss');
@@ -275,8 +296,10 @@ export default {
 		filteredProblems() {
 			if (!this.problems || !this.contest || !this.contest.problemset) return [];
 
+			let _problemset = this.contest.problemset.map(item => item.problem);
+
 			let list = this.problems.filter((item) => {
-				return !this.contest.problemset.includes(item);
+				return !_problemset.includes(item);
 			});
 
 			if (!this.addSearch) return list.slice(0,30);
@@ -284,7 +307,7 @@ export default {
 			return this.problems.filter((item) => {
 				return item.name.includes(this.addSearch);
 			});
-		},
+		}
 	},
 	created() {
 		this.fetchProblems();

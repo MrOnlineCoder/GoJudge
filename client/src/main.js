@@ -103,6 +103,12 @@ Vue.filter('formatMemlimit', (val) => {
   }
 });
 
+Vue.filter('problemShortname', (val) => {
+  const shortnames = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+  return shortnames[val];
+})
+
 function createApp() {
   new Vue({
     router,
